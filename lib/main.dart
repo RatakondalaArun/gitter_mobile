@@ -22,11 +22,12 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Gitter'),
-        ),
-        body: Center(
-          child: Text('Home'),
-        ));
+      appBar: AppBar(
+        title: Text('Gitter'),
+      ),
+      body: Center(
+        child: Text('Home'),
+      ),
+    );
   }
 }
