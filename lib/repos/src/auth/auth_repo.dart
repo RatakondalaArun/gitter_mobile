@@ -1,7 +1,11 @@
 library repos.auth;
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
+import 'package:gitter/errors/app_exception.dart';
 import 'package:gitterapi/gitter_api.dart';
 import 'package:gitterapi/models.dart';
 

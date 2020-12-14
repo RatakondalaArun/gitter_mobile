@@ -9,39 +9,80 @@ class AuthRepoImp extends AuthRepoAbs {
 
   @override
   Future<User> signIn() async {
-    // show auth screen and get code
+    // GET CODE
     final url = AuthUtils.getWebFlowUrl(Keys.CLIENT_ID, Keys.CALLBACK_URL);
-    final result = await FlutterWebAuth.authenticate(
-      url: url,
-      callbackUrlScheme: Keys.CALL_BACK_URL_SCHEME,
-    );
 
-    // TODO(@RatakondalaArun): Throw error
-    if (result == null) return null;
+    String result;
+    try {
+      result = await FlutterWebAuth.authenticate(
+        url: url,
+        callbackUrlScheme: Keys.CALL_BACK_URL_SCHEME,
+      );
+    } on PlatformException catch (e, st) {
+      if (e.code == 'CANCELED') {
+        throw AppException<PlatformException>(
+          e.code,
+          userError: 'Signed in cancled By you.',
+          details: e.details,
+          stackTrace: st,
+        );
+      }
+      throw AppException<PlatformException>(
+        e.code,
+        userError: 'Login Failed',
+        details: e.details,
+        stackTrace: st,
+      );
+    } catch (_) {
+      rethrow;
+    }
 
     // parse code and get token
     final code = _getCodeFrom(result);
+    print(code);
 
-    final response = await Dio(
-      BaseOptions(contentType: 'application/json'),
-    ).post<Response>(
-      AuthUtils.tokenUrl,
-      data: AuthUtils.parsetokenBody(
-        Keys.CLIENT_ID,
-        Keys.CLIENT_SECERET,
-        Keys.CALL_BACK_URL_SCHEME,
-        code,
-      ),
+    // this payload contains required field to create a token
+    // https://developer.gitter.im/docs/authentication
+    final payLoad = AuthUtils.parsetokenBody(
+      clientId: Keys.CLIENT_ID,
+      clientSecret: Keys.CLIENT_SECERET,
+      redirectUrl: Keys.CALLBACK_URL,
+      code: code,
     );
 
-    if (response.statusCode != 200) {
-      print('failed to get token from server');
-      print(
-          'statusCode: ${response.statusCode} statusMessage: ${response.statusMessage} , data: ${response.data}');
+    // GET TOKEN
+    Response<Map<String, dynamic>> response;
+    try {
+      response = await Dio(
+        BaseOptions(
+          contentType: 'application/json',
+          headers: {HttpHeaders.acceptHeader: 'applicaiton/json'},
+        ),
+      ).post<Map<String, dynamic>>(
+        AuthUtils.tokenUrl,
+        data: payLoad,
+      );
+    } on DioError catch (e, st) {
+      throw AppException<DioError>(
+        e.message,
+        stackTrace: st,
+        orginalError: e,
+      );
+    } catch (_) {
+      rethrow;
     }
-    print(response.data);
-    // get user
-    return null;
+
+    final accessToken = response.data['access_token'];
+
+    // GET USER FROM API
+    try {
+      final user = await GitterApi(ApiKeys(accessToken)).v1.userResource.me();
+      // TODO(@RatakondalaArun): Save the accessToken and user to disk
+      print(user);
+      return User.fromMap(user);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
