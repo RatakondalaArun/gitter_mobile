@@ -27,14 +27,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
   Stream<SignInState> _mapStartToState() async* {
     try {
-      // TODO(@RatakondalaArun): Handle Event
       yield SignInState.signingIn();
       final user = await _authRepo.signIn();
       yield SignInState.signedIn(user);
     } on AppException catch (e) {
       yield SignInState.error(e.userError);
     } catch (e, st) {
-      // TODO(@RatakondalaArun): Handle Exception
       print(st);
       yield SignInState.error('Error while Signing In');
     }

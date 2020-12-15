@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gitter/blocs/blocs.dart';
+import 'blocs/blocs.dart';
 
 import 'routes.dart';
 
