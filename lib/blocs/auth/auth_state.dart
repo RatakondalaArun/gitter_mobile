@@ -8,6 +8,8 @@ class AuthState {
   /// Current Blocs state
   final AuthBlocStates blocState;
 
+  final User user;
+
   /// If there is any error this will contains the message
   final String errorMessage;
 
@@ -20,6 +22,7 @@ class AuthState {
   /// Creates a instance of the [AuthState]
   const AuthState(
     this.blocState, {
+    this.user,
     this.errorMessage,
   });
 
@@ -34,9 +37,11 @@ class AuthState {
   }
 
   ///Represents signedIn state of the bloc
-  factory AuthState.signedIn() {
-    // TODO(@RatakondalaArun) accept a parameter of type user
-    return AuthState(AuthBlocStates.signedIn);
+  factory AuthState.signedIn(User user) {
+    return AuthState(
+      AuthBlocStates.signedIn,
+      user: user,
+    );
   }
 
   /// Represents signedOut state of the bloc
@@ -52,10 +57,12 @@ class AuthState {
   /// Returns a new Instance of [AuthState] by updating bloc fields
   AuthState update({
     AuthBlocStates blocState,
+    User user,
     String errorMessage,
   }) {
     return AuthState(
       blocState ?? this.blocState,
+      user: user ?? this.user,
       errorMessage: errorMessage,
     );
   }

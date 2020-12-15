@@ -52,7 +52,11 @@ class AuthRepoImp extends AuthRepoAbs {
 
     // parse code and get token
     final code = _getCodeFrom(result);
-    print(code);
+    if (code == null)
+      throw AppException<Exception>(
+        'ERROR_ACCESS_DENIED',
+        userError: 'Access denied',
+      );
 
     // this payload contains required field to create a token
     // https://developer.gitter.im/docs/authentication
@@ -90,9 +94,8 @@ class AuthRepoImp extends AuthRepoAbs {
     // GET USER FROM API
     try {
       final user = await GitterApi(ApiKeys(accessToken)).v1.userResource.me();
-      // [x] TODO(@RatakondalaArun): Save the accessToken and user to disk
+      // Save the accessToken and user to disk
       await _dBService.currentUser.create(User.fromMap(user));
-      print(user);
       return User.fromMap(user);
     } catch (e) {
       rethrow;
@@ -101,8 +104,7 @@ class AuthRepoImp extends AuthRepoAbs {
 
   @override
   Future<void> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
+    return _dBService.currentUser.delete();
   }
 }
 

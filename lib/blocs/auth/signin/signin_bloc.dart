@@ -1,6 +1,7 @@
 library blocs.auth.signin;
 
 import 'package:bloc/bloc.dart';
+import 'package:gitter/errors/app_exception.dart';
 import 'package:gitterapi/models.dart';
 import 'package:gitter/repos/repos.dart';
 
@@ -30,6 +31,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       yield SignInState.signingIn();
       final user = await _authRepo.signIn();
       yield SignInState.signedIn(user);
+    } on AppException catch (e) {
+      yield SignInState.error(e.userError);
     } catch (e, st) {
       // TODO(@RatakondalaArun): Handle Exception
       print(st);

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gitter/blocs/blocs.dart';
 
 import 'routes.dart';
 
@@ -10,12 +12,15 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gitter',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return BlocProvider<AuthBloc>(
+      create: (_) => AuthBloc(authRepo),
+      child: MaterialApp(
+        title: 'Gitter',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        onGenerateRoute: onGenerateRoute,
       ),
-      onGenerateRoute: onGenerateRoute,
     );
   }
 }

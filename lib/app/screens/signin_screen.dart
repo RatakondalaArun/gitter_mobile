@@ -15,6 +15,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   void initState() {
     _signInBloc = BlocProvider.of<SignInBloc>(context);
+    _signInBloc.listen(_handleSignInBlocState);
     super.initState();
   }
 
@@ -41,5 +42,11 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _onPressedLogin() {
     _signInBloc.add(SignInEventStart());
+  }
+
+  void _handleSignInBlocState(SignInState state) {
+    if (state.isSignedIn) {
+      BlocProvider.of<AuthBloc>(context).add(AuthEventCheckStatus());
+    }
   }
 }
