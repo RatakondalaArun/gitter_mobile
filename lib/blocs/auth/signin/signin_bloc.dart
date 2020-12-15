@@ -1,8 +1,8 @@
 library blocs.auth.signin;
 
 import 'package:bloc/bloc.dart';
+import 'package:gitterapi/models.dart';
 import 'package:gitter/repos/repos.dart';
-import 'package:gitterapi/models/user.dart';
 
 part 'signin_event.dart';
 part 'signin_state.dart';
@@ -11,11 +11,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final AuthRepoAbs _authRepo;
   SignInBloc(AuthRepoAbs repo)
       : _authRepo = repo,
-        super(SignInState.initial());
+        super(SignInState.initial()) {
+    add(_InitilizeEvent());
+  }
 
   @override
   Stream<SignInState> mapEventToState(SignInEvent event) async* {
-    if (event is SignInEventStart) {
+    if (event is _InitilizeEvent) {
+      await _authRepo.init();
+    } else if (event is SignInEventStart) {
       yield* _mapStartToState();
     }
   }

@@ -1,10 +1,20 @@
 part of repos.auth;
 
 class AuthRepoImp extends AuthRepoAbs {
+  DatabaseService _dBService;
+
+  @override
+  Stream<User> get currentUserStream =>
+      _dBService.currentUser.currentUserChanges;
+
+  AuthRepoImp() : _dBService = DatabaseService();
+
+  @override
+  Future<void> init() => _dBService.init();
+
   @override
   Future<User> getCurrentUser() {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
+    return _dBService.currentUser.get();
   }
 
   @override
@@ -77,7 +87,8 @@ class AuthRepoImp extends AuthRepoAbs {
     // GET USER FROM API
     try {
       final user = await GitterApi(ApiKeys(accessToken)).v1.userResource.me();
-      // TODO(@RatakondalaArun): Save the accessToken and user to disk
+      // [x] TODO(@RatakondalaArun): Save the accessToken and user to disk
+      await _dBService.currentUser.create(User.fromMap(user));
       print(user);
       return User.fromMap(user);
     } catch (e) {

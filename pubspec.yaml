@@ -27,6 +27,7 @@ dependencies:
   bloc: ^6.1.1
   flutter_bloc: ^6.1.1
   dio: ^3.0.10
+  path_provider: ^1.6.24
   hive: ^1.4.4+1
 
   gitterapi:
