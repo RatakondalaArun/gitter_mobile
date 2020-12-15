@@ -7,6 +7,7 @@ class SignInState {
   final User user;
   final String errorMessage;
 
+  bool get isSignningIn => blocState == SignInBlocStates.signingIn;
   bool get isSignedIn => blocState == SignInBlocStates.signedIn;
   bool get isError => blocState == SignInBlocStates.error;
 
