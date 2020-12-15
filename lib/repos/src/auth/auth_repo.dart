@@ -15,6 +15,9 @@ import '../../../keys/keys.dart';
 part 'auth_repo_imp.dart';
 
 abstract class AuthRepoAbs {
+  /// Returns true after calling [init()] method.
+  bool get isInitilized;
+
   /// Returns changes from current user.
   Stream<User> get currentUserStream;
 

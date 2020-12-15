@@ -4,6 +4,9 @@ class AuthRepoImp extends AuthRepoAbs {
   DatabaseService _dBService;
 
   @override
+  bool get isInitilized => _dBService.isInitilized;
+
+  @override
   Stream<User> get currentUserStream =>
       _dBService.currentUser.currentUserChanges;
 
