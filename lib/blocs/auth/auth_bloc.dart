@@ -34,6 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // This handles authrepo initilization and
     // listens to user state changes events.
     try {
+      yield AuthState.loading();
       if (!_authRepo.isInitilized) {
         await _authRepo.init();
       }
