@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gitter/blocs/blocs.dart';
 import 'blocs/blocs.dart';
 import 'repos/repos.dart';
 
 import 'app/screens/screens.dart';
 
 final authRepo = AuthRepoImp();
+final homeRepo = HomeRepoImp();
 
 Route<dynamic> onGenerateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -27,7 +29,10 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
                     showLoading: state.blocState == AuthBlocStates.loading,
                   );
                 case AuthBlocStates.signedIn:
-                  return HomePageScreen();
+                  return BlocProvider(
+                    create: (_) => HomeBloc(authRepo, homeRepo),
+                    child: HomeScreen(),
+                  );
                 case AuthBlocStates.signedOut:
                   return SignInScreen();
                 default:

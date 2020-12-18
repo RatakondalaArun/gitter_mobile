@@ -74,6 +74,23 @@ class OfflineCurrentUserDatabase extends CurrentUserDatabase {
   Future<void> update(User user) {
     return _currentUser.put('current_user', user.toMap());
   }
+
+  @override
+  Future<List<Room>> getRooms(String userId) {
+    final rooms = _currentUser.get(
+      'current_user_rooms',
+      defaultValue: {'rooms': []},
+    )['rooms'] as List<Map>;
+    return Future.value(rooms.map((room) => Room.fromMap(room)).toList());
+  }
+
+  @override
+  Future<void> putRooms(List<Room> rooms) {
+    return _currentUser.put(
+      'current_user_rooms',
+      {'rooms': rooms.map((r) => r.toMap()).toList()},
+    );
+  }
 }
 
 class OfflineCreditionalDatabase extends CreditionalDatabase {

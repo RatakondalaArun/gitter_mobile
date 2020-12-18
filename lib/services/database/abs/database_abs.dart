@@ -1,11 +1,9 @@
 library services.database;
 
-import 'package:gitter/services/database/database.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart' as pp;
-
 import 'package:gitterapi/gitter_api.dart';
 import 'package:gitterapi/models.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart' as pp;
 
 part '../error/database_service_exception.dart';
 part '../offline_database.dart';
@@ -45,6 +43,12 @@ abstract class CurrentUserDatabase {
 
   /// Deletes current user.
   Future<void> delete();
+
+  /// Fetches [List<Room>] form `server` and `local`.
+  Future<List<Room>> getRooms(String userId);
+
+  /// Stores [List<Room>] from `local`.
+  Future<void> putRooms(List<Room> rooms) => throw UnimplementedError();
 }
 
 abstract class CreditionalDatabase {

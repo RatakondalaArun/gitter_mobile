@@ -1,3 +1,4 @@
+import 'package:gitterapi/models/room/room.dart';
 import 'package:gitterapi/models/user.dart';
 
 import 'abs/database_abs.dart';
@@ -94,5 +95,22 @@ class _CurrentUserService extends CurrentUserDatabase {
   @override
   Future<void> update(User user) {
     return _offlineDb.update(user);
+  }
+
+  @override
+  Future<List<Room>> getRooms(String userId) async {
+    try {
+      final rooms = await _onlineDb.getRooms(userId);
+      return rooms;
+    } catch (e) {
+      print(e);
+    }
+
+    return _offlineDb.getRooms(userId);
+  }
+
+  @override
+  Future<void> putRooms(List<Room> rooms) {
+    return _offlineDb.putRooms(rooms);
   }
 }

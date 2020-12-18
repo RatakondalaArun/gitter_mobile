@@ -63,4 +63,15 @@ class OnlineCurrentUserDatabase extends CurrentUserDatabase {
   Future<void> update(User user) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<Room>> getRooms(String userId) async {
+    final mapRooms = await _gitterApi.v1.userResource.getRooms(userId);
+    return mapRooms.map((room) => Room.fromMap(room)).toList();
+  }
+
+  @override
+  Future<void> putRooms(List<Room> rooms) {
+    throw UnimplementedError();
+  }
 }
