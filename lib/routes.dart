@@ -10,7 +10,21 @@ final authRepo = AuthRepoImp();
 final homeRepo = HomeRepoImp();
 
 Route<dynamic> onGenerateRoute(RouteSettings settings) {
+  final arguments = settings.arguments as Map<String, dynamic>;
   switch (settings.name) {
+    case ChatScreen.routeName:
+      return PageRouteBuilder<Offset>(
+        pageBuilder: (_, __, ___) => ChatScreen(room: arguments['room']),
+        transitionsBuilder: (context, animation, _, child) {
+          return SlideTransition(
+            position: animation.drive(Tween(
+              begin: Offset(1.0, 0),
+              end: Offset.zero,
+            )),
+            child: child,
+          );
+        },
+      );
     default:
       return MaterialPageRoute(builder: (_) {
         return BlocProvider<SignInBloc>(

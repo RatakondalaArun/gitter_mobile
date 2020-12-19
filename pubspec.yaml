@@ -32,6 +32,7 @@ dependencies:
   google_fonts: ^1.1.1
   animations: ^1.1.2
   cached_network_image: ^2.4.1
+  flutter_html: ^1.1.1
 
   gitterapi:
     path: packages/gitterapi

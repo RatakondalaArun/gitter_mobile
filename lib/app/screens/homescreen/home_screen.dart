@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gitter/app/widigets/widgets.dart';
 
-import '../../../blocs/blocs.dart';
-
+import 'components/home_tile.dart';
 import 'components/hs_drawer.dart';
 import 'components/search_bar.dart';
+import '../../widgets/widgets.dart';
+import '../../../blocs/blocs.dart';
 
 class HomeScreen extends StatefulWidget {
-  static const ROUTE_NAME = '/SignInScreen';
+  static const routeName = '/SignInScreen';
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -83,9 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       // TODO(@RatakondalaArun): Add Join room.
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.add_outlined),
-      // ),
       bottomNavigationBar: BlocBuilder<HomeBloc, HomeState>(
         builder: (_, state) {
           return BottomNavigationBar(
@@ -168,46 +165,13 @@ class _RoomsPage extends StatelessWidget {
           controller: controller,
           itemCount: state.rooms.length,
           itemBuilder: (context, index) {
-            final room = state.rooms[index];
-            return ListTile(
-              leading: SizedBox(
-                height: 40,
-                width: 40,
-                child: CircularImage(
-                  displayName: room.name,
-                  imageUrl: room.avatarUrl,
-                ),
-              ),
-              title: Text('${room.name}'),
-              trailing: _shouldShowUnread(room.unreadItems)
-                  ? Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade700,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Text(
-                        _formatUnreadCount(room.unreadItems),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  : null,
+            return HomeTile(
+              room: state.rooms[index],
             );
           },
         );
       },
     );
-  }
-
-  bool _shouldShowUnread(int count) {
-    return !(count == null || count == 0);
-  }
-
-  String _formatUnreadCount(int count) {
-    return count > 99 ? '99+' : '$count';
   }
 }
 
