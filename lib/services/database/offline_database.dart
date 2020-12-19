@@ -1,11 +1,18 @@
 part of services.database;
 
 class OfflineDatabaseService extends DatabaseServiceAbs {
+  static OfflineDatabaseService _instance = OfflineDatabaseService._();
+  CreditionalDatabase _creditionalDB;
   CurrentUserDatabase _currentUserDB;
   bool _isInitilized = false;
 
+  static OfflineDatabaseService get instance => _instance;
+
   @override
   bool get isInitilized => _isInitilized;
+
+  @override
+  CreditionalDatabase get creditional => _creditionalDB;
 
   @override
   CurrentUserDatabase get currentUser {
@@ -17,28 +24,21 @@ class OfflineDatabaseService extends DatabaseServiceAbs {
     return _currentUserDB;
   }
 
-  OfflineDatabaseService() {
-    init();
-  }
+  OfflineDatabaseService._();
 
   @override
   Future<void> init() async {
     // TODO(@RatakondalaArun): Change this to application storage directory
-    if (isInitilized) return;
+    if (_isInitilized) return;
     final path = (await pp.getExternalStorageDirectory()).path;
     Hive.init(path);
+    _creditionalDB =
+        OfflineCreditionalDatabase(await Hive.openBox('creditional'));
     _currentUserDB = OfflineCurrentUserDatabase(
       await Hive.openBox<Map>('user'),
     );
     _isInitilized = true;
   }
-
-  // Future<Box<T>> createIfNotExist<T>(String name) async {
-  //   if (await Hive.boxExists(name)) {
-  //     return Hive.openBox(name);
-  //   }
-  //   return await Hive.openBox(name);
-  // }
 
   Future<void> close() => Hive.close();
 }
@@ -73,5 +73,47 @@ class OfflineCurrentUserDatabase extends CurrentUserDatabase {
   @override
   Future<void> update(User user) {
     return _currentUser.put('current_user', user.toMap());
+  }
+
+  @override
+  Future<List<Room>> getRooms(String userId) {
+    final rooms = _currentUser.get(
+      'current_user_rooms',
+      defaultValue: {'rooms': []},
+    )['rooms'] as List<Map>;
+    return Future.value(rooms.map((room) => Room.fromMap(room)).toList());
+  }
+
+  @override
+  Future<void> putRooms(List<Room> rooms) {
+    return _currentUser.put(
+      'current_user_rooms',
+      {'rooms': rooms.map((r) => r.toMap()).toList()},
+    );
+  }
+}
+
+class OfflineCreditionalDatabase extends CreditionalDatabase {
+  Box<String> _credBox;
+  OfflineCreditionalDatabase(this._credBox);
+
+  @override
+  Future<void> create(String name, String value) {
+    return _credBox.put(name, value);
+  }
+
+  @override
+  Future<void> delete(String name) {
+    return _credBox.delete(name);
+  }
+
+  @override
+  Future<String> get(String name) {
+    return Future.value(_credBox.get(name));
+  }
+
+  @override
+  Future<void> update(String name, String value) {
+    return _credBox.put(name, value);
   }
 }

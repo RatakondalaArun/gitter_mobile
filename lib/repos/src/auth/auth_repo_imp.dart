@@ -10,7 +10,7 @@ class AuthRepoImp extends AuthRepoAbs {
   Stream<User> get currentUserStream =>
       _dBService.currentUser.currentUserChanges;
 
-  AuthRepoImp() : _dBService = DatabaseService();
+  AuthRepoImp() : _dBService = DatabaseService.instance;
 
   @override
   Future<void> init() => _dBService.init();
@@ -93,10 +93,12 @@ class AuthRepoImp extends AuthRepoAbs {
 
     // GET USER FROM API
     try {
-      final user = await GitterApi(ApiKeys(accessToken)).v1.userResource.me();
+      final user = User.fromMap(
+          await GitterApi(ApiKeys(accessToken)).v1.userResource.me());
       // Save the accessToken and user to disk
-      await _dBService.currentUser.create(User.fromMap(user));
-      return User.fromMap(user);
+      await _dBService.creditional.create('access_token', accessToken);
+      await _dBService.currentUser.create(user);
+      return user;
     } catch (e) {
       rethrow;
     }
