@@ -1,0 +1,3 @@
+[submodule "packages/gitterapi"]
+	path = packages/gitterapi
+	url = https://github.com/RatakondalaArun/gitterapi.git
