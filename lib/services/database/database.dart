@@ -1,5 +1,4 @@
-import 'package:gitterapi/models/room/room.dart';
-import 'package:gitterapi/models/user.dart';
+import 'package:gitterapi/models.dart';
 
 import 'abs/database_abs.dart';
 

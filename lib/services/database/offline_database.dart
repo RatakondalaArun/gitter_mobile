@@ -80,7 +80,7 @@ class OfflineCurrentUserDatabase extends CurrentUserDatabase {
     final rooms = _currentUser.get(
       'current_user_rooms',
       defaultValue: {'rooms': []},
-    )['rooms'] as List<Map>;
+    )['rooms'] as List<dynamic>;
     return Future.value(rooms.map((room) => Room.fromMap(room)).toList());
   }
 
