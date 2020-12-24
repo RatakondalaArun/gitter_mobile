@@ -4,6 +4,7 @@ class OnlineDatabaseService extends DatabaseServiceAbs {
   static OnlineDatabaseService _instance = OnlineDatabaseService._();
   OfflineDatabaseService _offlineDB;
   CurrentUserDatabase _userDB;
+  OnlineMessagesDatabase _messagesDB;
   bool _isInitilized = false;
   GitterApi _gitterApi;
 
@@ -23,10 +24,14 @@ class OnlineDatabaseService extends DatabaseServiceAbs {
   CurrentUserDatabase get currentUser => _userDB;
 
   @override
+  MessagesDatabase get messagesDB => _messagesDB;
+
+  @override
   Future<void> init() async {
     final accessToken = await _offlineDB.creditional.get('access_token');
     _gitterApi = GitterApi(ApiKeys(accessToken));
     _userDB = OnlineCurrentUserDatabase(_gitterApi);
+    _messagesDB = OnlineMessagesDatabase(_gitterApi);
     _isInitilized = true;
   }
 
@@ -73,5 +78,23 @@ class OnlineCurrentUserDatabase extends CurrentUserDatabase {
   @override
   Future<void> putRooms(List<Room> rooms) {
     throw UnimplementedError();
+  }
+}
+
+class OnlineMessagesDatabase extends MessagesDatabase {
+  GitterApi _gitterApi;
+  OnlineMessagesDatabase(this._gitterApi);
+  @override
+  Future<List<Message>> getMessages(
+    String roomId, {
+    String afterId,
+    String beforeId,
+  }) async {
+    final messages = await _gitterApi.v1.messageResource.getMessages(
+      roomId,
+      beforeId: beforeId,
+      afterId: afterId,
+    );
+    return messages.map((m) => Message.fromMap(m)).toList();
   }
 }

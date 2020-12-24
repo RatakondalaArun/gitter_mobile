@@ -4,6 +4,7 @@ class OfflineDatabaseService extends DatabaseServiceAbs {
   static OfflineDatabaseService _instance = OfflineDatabaseService._();
   CreditionalDatabase _creditionalDB;
   CurrentUserDatabase _currentUserDB;
+  MessagesDatabase _messagesDb;
   bool _isInitilized = false;
 
   static OfflineDatabaseService get instance => _instance;
@@ -37,10 +38,14 @@ class OfflineDatabaseService extends DatabaseServiceAbs {
     _currentUserDB = OfflineCurrentUserDatabase(
       await Hive.openBox<Map>('user'),
     );
+    _messagesDb = OfflineMessagesDatabase();
     _isInitilized = true;
   }
 
   Future<void> close() => Hive.close();
+
+  @override
+  MessagesDatabase get messagesDB => _messagesDb;
 }
 
 class OfflineCurrentUserDatabase extends CurrentUserDatabase {
@@ -117,3 +122,5 @@ class OfflineCreditionalDatabase extends CreditionalDatabase {
     return _credBox.put(name, value);
   }
 }
+
+class OfflineMessagesDatabase extends MessagesDatabase {}

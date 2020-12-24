@@ -198,15 +198,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  gitterapi:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: dev
-      resolved-ref: bef491b48ca146a8a81b410d31498d54513512a6
-      url: "https://github.com/RatakondalaArun/gitterapi.git"
-    source: git
-    version: "0.0.1"
   google_fonts:
     dependency: "direct main"
     description:

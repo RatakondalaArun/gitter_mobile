@@ -8,13 +8,22 @@ import 'app/screens/screens.dart';
 
 final authRepo = AuthRepoImp();
 final homeRepo = HomeRepoImp();
+final roomRepo = RoomRepoImp();
 
 Route<dynamic> onGenerateRoute(RouteSettings settings) {
   final arguments = settings.arguments as Map<String, dynamic>;
   switch (settings.name) {
     case ChatScreen.routeName:
+      final room = arguments['room'];
       return PageRouteBuilder<Offset>(
-        pageBuilder: (_, __, ___) => ChatScreen(room: arguments['room']),
+        pageBuilder: (_, __, ___) {
+          return BlocProvider(
+            create: (context) =>
+                RoomBloc(roomRepo)..add(RoomEventGetMessages(room)),
+            lazy: false,
+            child: ChatScreen(room: room),
+          );
+        },
         transitionsBuilder: (context, animation, _, child) {
           return SlideTransition(
             position: animation.drive(Tween(

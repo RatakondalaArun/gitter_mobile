@@ -11,6 +11,7 @@ class DatabaseService implements DatabaseServiceAbs {
   DatabaseServiceAbs _onlineDb;
   CreditionalDatabase _creditionalDB;
   CurrentUserDatabase _currentUserDB;
+  MessagesDatabase _messagesDB;
 
   static DatabaseService _instance = DatabaseService._();
 
@@ -33,6 +34,9 @@ class DatabaseService implements DatabaseServiceAbs {
   @override
   CreditionalDatabase get creditional => _creditionalDB;
 
+  @override
+  MessagesDatabase get messagesDB => _messagesDB;
+
   DatabaseService._() {
     init();
   }
@@ -50,6 +54,7 @@ class DatabaseService implements DatabaseServiceAbs {
       _onlineDb.currentUser,
       _offlineDB.currentUser,
     );
+    _messagesDB = _MessageService(_onlineDb.messagesDB, _offlineDB.messagesDB);
     _isInitilized = true && _offlineDB.isInitilized && _onlineDb.isInitilized;
   }
 
@@ -111,5 +116,17 @@ class _CurrentUserService extends CurrentUserDatabase {
   @override
   Future<void> putRooms(List<Room> rooms) {
     return _offlineDb.putRooms(rooms);
+  }
+}
+
+class _MessageService extends MessagesDatabase {
+  final MessagesDatabase _onlineDB;
+  final MessagesDatabase _offlineDB;
+
+  _MessageService(this._onlineDB, this._offlineDB);
+
+  @override
+  Future<List<Message>> getMessages(String roomId) {
+    return _onlineDB.getMessages(roomId);
   }
 }
