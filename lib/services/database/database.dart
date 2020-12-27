@@ -1,3 +1,4 @@
+import 'package:gitterapi/gitter_api.dart';
 import 'package:gitterapi/models.dart';
 
 import 'abs/database_abs.dart';
@@ -119,14 +120,33 @@ class _CurrentUserService extends CurrentUserDatabase {
   }
 }
 
-class _MessageService extends MessagesDatabase {
+class _MessageService implements MessagesDatabase {
   final MessagesDatabase _onlineDB;
   final MessagesDatabase _offlineDB;
 
   _MessageService(this._onlineDB, this._offlineDB);
 
   @override
-  Future<List<Message>> getMessages(String roomId) {
-    return _onlineDB.getMessages(roomId);
+  Future<List<Message>> getMessages(
+    String roomId, {
+    String beforeId,
+    String afterId,
+    int skip,
+    int limit,
+    String query,
+  }) {
+    return _onlineDB.getMessages(
+      roomId,
+      beforeId: beforeId,
+      afterId: afterId,
+      skip: skip,
+      limit: limit,
+      query: query,
+    );
+  }
+
+  @override
+  Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
+    return _onlineDB.getMessagesStream(roomId);
   }
 }

@@ -19,7 +19,7 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
         pageBuilder: (_, __, ___) {
           return BlocProvider(
             create: (context) =>
-                RoomBloc(roomRepo)..add(RoomEventGetMessages(room)),
+                RoomBloc(roomRepo)..add(RoomEventInitilize(room)),
             lazy: false,
             child: ChatScreen(room: room),
           );

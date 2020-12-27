@@ -193,45 +193,11 @@ class _DirectMessages extends StatelessWidget {
           controller: controller,
           itemCount: state.chats.length,
           itemBuilder: (context, index) {
-            final chat = state.chats[index];
-            return ListTile(
-              leading: SizedBox(
-                height: 40,
-                width: 40,
-                child: CircularImage(
-                  displayName: chat?.name,
-                  imageUrl: chat.avatarUrl,
-                ),
-              ),
-              title: Text('${chat.name}'),
-              trailing: _shouldShowUnread(chat.unreadItems)
-                  ? Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade700,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Text(
-                        _formatUnreadCount(chat.unreadItems),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  : null,
-            );
+            final room = state.chats[index];
+            return HomeTile(room: room);
           },
         );
       },
     );
-  }
-
-  bool _shouldShowUnread(int count) {
-    return !(count == null || count == 0);
-  }
-
-  String _formatUnreadCount(int count) {
-    return count > 99 ? '99+' : '$count';
   }
 }

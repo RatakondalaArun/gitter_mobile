@@ -19,7 +19,7 @@ class CircularImage extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.circular(50),
       child: CachedNetworkImage(
-        imageUrl: imageUrl,
+        imageUrl: imageUrl ?? '',
         errorWidget: (_, __, ___) => _ColoredLetter(
           letter: displayName.trim()[0],
         ),

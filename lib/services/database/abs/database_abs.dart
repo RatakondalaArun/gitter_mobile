@@ -64,7 +64,18 @@ abstract class CreditionalDatabase {
 abstract class UserResourceDatabase {}
 
 abstract class MessagesDatabase {
-  Future<List<Message>> getMessages(String roomId) {
+  Future<List<Message>> getMessages(
+    String roomId, {
+    String beforeId,
+    String afterId,
+    int skip,
+    int limit,
+    String query,
+  }) {
+    throw UnimplementedError();
+  }
+
+  Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
     throw UnimplementedError();
   }
 }

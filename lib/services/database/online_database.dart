@@ -87,14 +87,25 @@ class OnlineMessagesDatabase extends MessagesDatabase {
   @override
   Future<List<Message>> getMessages(
     String roomId, {
-    String afterId,
     String beforeId,
+    String afterId,
+    int skip,
+    int limit,
+    String query,
   }) async {
     final messages = await _gitterApi.v1.messageResource.getMessages(
       roomId,
       beforeId: beforeId,
       afterId: afterId,
+      skip: skip,
+      limit: limit,
+      query: query,
     );
     return messages.map((m) => Message.fromMap(m)).toList();
+  }
+
+  @override
+  Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
+    return _gitterApi.v1.streamApi.chatMessages(roomId);
   }
 }
