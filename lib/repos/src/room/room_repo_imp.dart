@@ -28,4 +28,13 @@ class RoomRepoImp extends RoomRepoAbs {
   Future<Stream<StreamEvent>> getMessageStream(String roomId) {
     return _db.messagesDB.getMessagesStream(roomId);
   }
+
+  @override
+  Future<void> sendMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    return _db.messagesDB.createMessage(roomId, message, status: status);
+  }
 }

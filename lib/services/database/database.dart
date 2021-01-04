@@ -149,4 +149,18 @@ class _MessageService implements MessagesDatabase {
   Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
     return _onlineDB.getMessagesStream(roomId);
   }
+
+  @override
+  Future<void> createMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    return _onlineDB.createMessage(roomId, message, status: status);
+  }
+
+  @override
+  Future<List> readBy(String roomId, String messageId) {
+    return _onlineDB.readBy(roomId, messageId);
+  }
 }

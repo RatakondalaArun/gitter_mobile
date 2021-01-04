@@ -78,4 +78,16 @@ abstract class MessagesDatabase {
   Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
     throw UnimplementedError();
   }
+
+  Future<void> createMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    throw UnimplementedError();
+  }
+
+  Future<List> readBy(String roomId, String messageId) {
+    throw UnimplementedError();
+  }
 }

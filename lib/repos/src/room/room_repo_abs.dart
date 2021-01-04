@@ -17,4 +17,10 @@ abstract class RoomRepoAbs {
   });
 
   Future<Stream<StreamEvent>> getMessageStream(String roomId);
+
+  Future<void> sendMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  });
 }

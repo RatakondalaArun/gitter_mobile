@@ -3,9 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gitterapi/models.dart';
 
 import '../../../blocs/blocs.dart';
-import 'components/chat_details.dart';
-import 'components/chat_bubble.dart';
 import 'components/chat_screen_app_bar.dart';
+import 'components/chat_view.dart';
 import 'components/message_input.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -22,28 +21,35 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _shouldShowFAB = ValueNotifier<bool>(false);
+
   RoomBloc _roomBloc;
-  ScrollController _scrollController;
+  ScrollController _chatScrollController;
   TextEditingController _messageController;
   FocusNode _messageInputFocus;
 
   @override
   void initState() {
     _roomBloc = BlocProvider.of<RoomBloc>(context);
-    _scrollController = ScrollController();
+    _chatScrollController = ScrollController();
     _messageController = TextEditingControllerWithMentions(text: '');
     _messageInputFocus = FocusNode();
-    _scrollController.addListener(_scrollHandle);
+    _chatScrollController.addListener(_scrollHandle);
     super.initState();
   }
 
   void _scrollHandle() {
-    if (!_scrollController.hasClients) return;
-    if (_scrollController.position.extentAfter < 200.0 &&
-        _scrollController.position.atEdge) {
+    if (!_chatScrollController.hasClients) return;
+    if (_chatScrollController.position.extentAfter < 200.0 &&
+        _chatScrollController.position.atEdge) {
       if (!_roomBloc.state.isMessagesLoading) {
         _roomBloc.add(RoomEventLoadNext());
       }
+    }
+    if (_chatScrollController.position.extentBefore > 400) {
+      if (!_shouldShowFAB.value) _shouldShowFAB.value = true;
+    } else {
+      _shouldShowFAB.value = false;
     }
   }
 
@@ -52,8 +58,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageInputFocus?.unfocus();
     _messageInputFocus?.dispose();
     _messageController?.dispose();
-    _scrollController?.dispose();
+    _chatScrollController?.dispose();
     _roomBloc?.close();
+    _shouldShowFAB.dispose();
     super.dispose();
   }
 
@@ -68,8 +75,8 @@ class _ChatScreenState extends State<ChatScreen> {
             bottom: 65,
             left: 0,
             right: 0,
-            child: _ChatView(
-              scrollController: _scrollController,
+            child: ChatView(
+              scrollController: _chatScrollController,
               messageController: _messageController,
               messageFocusNode: _messageInputFocus,
             ),
@@ -81,117 +88,62 @@ class _ChatScreenState extends State<ChatScreen> {
             child: MessageInput(
               textController: _messageController,
               focusNode: _messageInputFocus,
+              onSend: _sendMessage,
+            ),
+          ),
+          Positioned(
+            right: 10,
+            bottom: 100,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _shouldShowFAB,
+              builder: (_, value, child) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: value ? child : Container(),
+                );
+              },
+              child: FloatingActionButton(
+                backgroundColor: Colors.blue.shade300,
+                mini: true,
+                child: Icon(Icons.arrow_downward_outlined),
+                onPressed: _jumpToRecentChat,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: Container(
+              child: BlocBuilder<RoomBloc, RoomState>(
+                cubit: _roomBloc,
+                builder: (context, state) {
+                  return state.isMessagesLoading
+                      ? LinearProgressIndicator()
+                      : Container();
+                },
+              ),
             ),
           ),
         ],
       ),
     );
   }
-}
 
-class _ChatView extends StatelessWidget {
-  final ScrollController scrollController;
-  final TextEditingController messageController;
-  final FocusNode messageFocusNode;
-
-  const _ChatView({
-    Key key,
-    this.scrollController,
-    this.messageController,
-    this.messageFocusNode,
-  }) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<RoomBloc, RoomState>(
-      buildWhen: (_, n) => n.shouldUpdateChat,
-      builder: (context, state) {
-        if (state.isLoaded) {
-          return ListView.builder(
-            reverse: true,
-            controller: scrollController,
-            itemCount: state.messages.length,
-            itemBuilder: (context, index) {
-              // current message
-              final message = state.messages[index];
-              // current user id
-              final currentUserId = message.fromUser.id;
-              // next user id if this is last message this should be null
-              // to prevant index out of bounds
-              final nextUserId = index == state.messages.length - 1
-                  ? null
-                  : state.messages[index + 1].fromUser.id;
-              // this will check if this is different user
-              final isDifferentUser = currentUserId != nextUserId;
-              return ChatBubble(
-                key: Key('chat_item#$index'),
-                message: message,
-                isDifferentUser: isDifferentUser,
-                isOneToOne: state.room.oneToOne,
-                onTapUsername: _onTapUsername,
-                onLongPress: (m) => _onLongPressMessage(
-                  context: context,
-                  message: message,
-                  isOneToOne: state.room.oneToOne,
-                ),
-              );
-            },
-          );
-        } else {
-          return Center(child: CircularProgressIndicator());
-        }
-      },
+  void _jumpToRecentChat() {
+    _chatScrollController.animateTo(
+      1.0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
     );
   }
 
-  void _onTapUsername(String username) {
-    if (messageController == null) return;
-    // get current cursur position
-    final currentTextValue = messageController.text;
-    if (currentTextValue.isEmpty) {
-      messageController.text += '@$username ';
-      //move cursor to last position
-      messageController.selection = TextSelection.collapsed(
-        offset: messageController.text.length,
-      );
-      return;
-    }
-
-    final cursorPosition = messageController.selection.base.offset;
-    // get the values before the cursor and after the cursour
-    final textBeforeCursor = currentTextValue.substring(0, cursorPosition);
-    final textAfterCursor = currentTextValue.substring(
-      cursorPosition,
-      currentTextValue.length,
-    );
-
-    messageController.text =
-        textBeforeCursor + ' @$username ' + textAfterCursor;
-
-    // move cursor after username length
-    final targetOffset = cursorPosition + username.length + 3;
-    messageController.selection = TextSelection.collapsed(offset: targetOffset);
-    messageController.buildTextSpan(
-        style: TextStyle(color: Colors.green), withComposing: true);
-  }
-
-  void _onLongPressMessage({
-    BuildContext context,
-    Message message,
-    bool isOneToOne,
-  }) {
-    final controller = showBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      builder: (context) => ChatDetailDailog(
-        message: message,
-        isOneToOne: isOneToOne,
-      ),
-    );
+  void _sendMessage(String message) {
+    _roomBloc.add(RoomEventSendMessage(message));
   }
 }
 
-/// Styles the `@mentions`
+/// Styles the @mentions
 class TextEditingControllerWithMentions extends TextEditingController {
   TextEditingControllerWithMentions({String text}) : super(text: text);
 

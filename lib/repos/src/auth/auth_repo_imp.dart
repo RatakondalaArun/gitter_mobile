@@ -94,7 +94,8 @@ class AuthRepoImp extends AuthRepoAbs {
     // GET USER FROM API
     try {
       final user = User.fromMap(
-          await GitterApi(ApiKeys(accessToken)).v1.userResource.me());
+        (await GitterApi(ApiKeys(accessToken)).v1.userResource.me()).data,
+      );
       // Save the accessToken and user to disk
       await _dBService.creditional.create('access_token', accessToken);
       await _dBService.currentUser.create(user);

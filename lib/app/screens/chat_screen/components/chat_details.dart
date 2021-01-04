@@ -17,17 +17,16 @@ class ChatDetailDailog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: ListView(
+        physics: BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         children: [
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: ChatBubble(
-              message: message,
-              isOneToOne: isOneToOne,
-            ),
+          ChatBubble(
+            message: message,
+            isOneToOne: isOneToOne,
           ),
           Column(
             children: [
@@ -46,6 +45,12 @@ class ChatDetailDailog extends StatelessWidget {
               ListTile(
                 title: const Text('Copy'),
                 leading: Icon(Icons.copy_outlined),
+                hoverColor: Colors.blue.withOpacity(0.1),
+                onTap: () {},
+              ),
+              ListTile(
+                title: const Text('Thread'),
+                leading: Icon(Icons.forum_outlined),
                 hoverColor: Colors.blue.withOpacity(0.1),
                 onTap: () {},
               ),

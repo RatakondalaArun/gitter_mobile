@@ -27,7 +27,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
     } else if (event is _StreamMessageDisconnectedEvent) {
       yield* _mapStreamMessageDisconnectedEventToState(event);
     } else if (event is RoomEventSendMessage) {
-      // todo
+      yield* _mapSendMessageToState(event);
     }
   }
 
@@ -78,6 +78,22 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
     try {
       if (event.streamEvent.isHeartbeat) {
         print('HeartBeat event');
+      } else if (Message.fromMap(event.streamEvent.data).isChild) {
+        final message = Message.fromMap(event.streamEvent.data);
+
+        /// Change message parent thread count.
+        final updatedMessages = state.messages.map((ele) {
+          return ele.id == message.parentId
+              ? ele.copyWith(
+                  threadMessageCount: (ele.threadMessageCount ?? 0) + 1,
+                )
+              : ele;
+        }).toList();
+
+        yield state.update(
+          messages: updatedMessages,
+          shouldUpdateChat: true,
+        );
       } else {
         final updatedMessages = state.messages
           ..insert(0, Message.fromMap(event.streamEvent.data));
@@ -133,6 +149,15 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       yield state.update(messagesState: RoomMessagesState.loaded);
       print(e);
       print(s);
+    }
+  }
+
+  Stream<RoomState> _mapSendMessageToState(RoomEventSendMessage event) async* {
+    try {
+      await _roomRepo.sendMessage(state.room.id, event.message);
+    } catch (e, st) {
+      //
+      print(st);
     }
   }
 

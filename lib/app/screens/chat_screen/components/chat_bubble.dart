@@ -51,71 +51,136 @@ class ChatBubble extends StatelessWidget {
         right: 2,
         bottom: 1,
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          (isDifferentUser)
-              ? Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: InkWell(
-                      onTap: () => onTapProfile?.call(message.fromUser),
-                      borderRadius: BorderRadius.circular(20),
-                      child: CircularImage(
-                        imageUrl: message.fromUser.avatarUrlMedium,
-                        displayName: message.fromUser.displayName,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              (isDifferentUser)
+                  ? Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: SizedBox(
+                        width: 30,
+                        height: 30,
+                        child: InkWell(
+                          onTap: () => onTapProfile?.call(message.fromUser),
+                          borderRadius: BorderRadius.circular(20),
+                          child: CircularImage(
+                            imageUrl: message.fromUser.avatarUrlMedium,
+                            displayName: message.fromUser.displayName,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: SizedBox(
+                        width: 30,
+                        height: 30,
                       ),
                     ),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: SizedBox(
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-          InkWell(
-            onLongPress: () => onLongPress?.call(message),
-            borderRadius: kBubbleRadious,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+              InkWell(
+                onLongPress: () => onLongPress?.call(message),
                 borderRadius: kBubbleRadious,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isDifferentUser)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 8,
-                        top: 10,
-                        bottom: 5,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: kBubbleRadious,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isDifferentUser)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            top: 10,
+                            bottom: 5,
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(4),
+                            radius: 10,
+                            onTap: () {
+                              return onTapUsername
+                                  ?.call(message.fromUser.username);
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  ' ${message.fromUser.displayName}',
+                                  style: TextStyle(
+                                    color:
+                                        _getColor(message.fromUser.displayName),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  ' @${message.fromUser.username} ',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 50,
+                        child: message.isDeleted
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'This message was deleted.',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              )
+                            : Html(
+                                data: message.html ?? '',
+                                shrinkWrap: true,
+                                onLinkTap: onTapLink?.call,
+                                customRender: _widgetMap(),
+                              ),
                       ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(4),
-                        radius: 10,
-                        onTap: () {
-                          return onTapUsername?.call(message.fromUser.username);
-                        },
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: Row(
                           children: [
-                            Text(
-                              ' ${message.fromUser.displayName}',
-                              style: TextStyle(
-                                color: _getColor(message.fromUser.displayName),
-                                fontWeight: FontWeight.bold,
+                            if (!isOneToOne)
+                              Icon(
+                                Icons.remove_red_eye,
+                                size: 14,
+                                color: Colors.grey,
                               ),
-                            ),
+                            SizedBox(width: 2),
+                            (!isOneToOne)
+                                ? Text(
+                                    _formattedReadByCount,
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.done_all,
+                                    size: 14,
+                                    color: message.readBy == 0
+                                        ? Colors.grey
+                                        : Colors.blue.shade300,
+                                  ),
+                            SizedBox(width: 10),
                             Text(
-                              ' @${message.fromUser.username} ',
+                              _formattedTime,
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 12,
@@ -124,61 +189,61 @@ class ChatBubble extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 50,
-                    child: Html(
-                      data: message.html ?? '',
-                      shrinkWrap: true,
-                      onLinkTap: onTapLink?.call,
-                      customRender: _widgetMap(),
-                    ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                ),
+              ),
+            ],
+          ),
+          if (_shouldShowThread)
+            Row(
+              children: [
+                SizedBox(width: 40),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {},
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 2,
+                      vertical: 2,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (!isOneToOne)
-                          Icon(
-                            Icons.remove_red_eye,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                        SizedBox(width: 2),
-                        (!isOneToOne)
-                            ? Text(
-                                _formattedReadByCount,
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
-                              )
-                            : Icon(
-                                Icons.done_all,
-                                size: 14,
-                                color: message.readBy == 0
-                                    ? Colors.grey
-                                    : Colors.blue.shade300,
-                              ),
-                        SizedBox(width: 10),
                         Text(
-                          _formattedTime,
+                          '${message.threadMessageCount}',
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: Colors.white,
                             fontSize: 12,
                           ),
                         ),
+                        const Icon(
+                          Icons.forum_outlined,
+                          size: 16,
+                          color: Colors.white,
+                        ),
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
-          ),
         ],
       ),
     );
   }
+
+  bool get _shouldShowThread => message.isParent;
 
   String get _formattedTime {
     final time = DateFormat('h:mm a MMM').format(message.sentAs.toLocal());
@@ -224,7 +289,8 @@ class ChatBubble extends StatelessWidget {
               ),
             ),
           ),
-          child: SelectableText(
+          padding: const EdgeInsets.only(left: 2),
+          child: Text(
             '"${element.text.trim()}"',
             style: TextStyle(fontStyle: FontStyle.italic),
             textAlign: TextAlign.left,
@@ -233,15 +299,27 @@ class ChatBubble extends StatelessWidget {
       },
       "code": (context, widget, map, element) {
         return Container(
-          padding: const EdgeInsets.all(5),
+          padding: EdgeInsets.symmetric(
+            vertical: element.text.trim().length < 46 ? 0 : 8,
+            horizontal: 8,
+          ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Colors.grey.shade300,
           ),
-          child: SelectableText(
-            '${element.text.trim()}',
-            onTap: () => onTapCode?.call(element.text),
-            style: GoogleFonts.ubuntuMono(),
+          child: Scrollbar(
+            radius: Radius.circular(10),
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              child: GestureDetector(
+                onTap: () => onTapCode?.call(element.text),
+                child: Text(
+                  '${element.text.trim()}',
+                  style: GoogleFonts.ubuntuMono(),
+                ),
+              ),
+            ),
           ),
         );
       }
@@ -286,4 +364,8 @@ Color _getColor(String letter) {
     return _colors.values.toList()[Random().nextInt(_colors.length).toInt()];
   }
   return _colors[letter[0].toUpperCase()];
+}
+
+extension on Message {
+  bool get isDeleted => text == null || text.isEmpty;
 }

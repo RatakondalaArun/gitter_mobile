@@ -61,7 +61,7 @@ class OnlineCurrentUserDatabase extends CurrentUserDatabase {
 
   @override
   Future<User> get() async {
-    return User.fromMap(await _gitterApi.v1.userResource.me());
+    return User.fromMap((await _gitterApi.v1.userResource.me()).data);
   }
 
   @override
@@ -72,7 +72,7 @@ class OnlineCurrentUserDatabase extends CurrentUserDatabase {
   @override
   Future<List<Room>> getRooms(String userId) async {
     final mapRooms = await _gitterApi.v1.userResource.getRooms(userId);
-    return mapRooms.map((room) => Room.fromMap(room)).toList();
+    return mapRooms.data.map((room) => Room.fromMap(room)).toList();
   }
 
   @override
@@ -101,11 +101,32 @@ class OnlineMessagesDatabase extends MessagesDatabase {
       limit: limit,
       query: query,
     );
-    return messages.map((m) => Message.fromMap(m)).toList();
+    return messages.data.map((m) => Message.fromMap(m)).toList();
   }
 
   @override
   Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
     return _gitterApi.v1.streamApi.chatMessages(roomId);
+  }
+
+  @override
+  Future<void> createMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    return _gitterApi.v1.messageResource.sendMessage(
+      roomId,
+      message,
+      status: status,
+    );
+  }
+
+  Future<List> readBy(String roomId, String messageId) async {
+    final readBy = await _gitterApi.v1.messageResource.messageReadBy(
+      roomId,
+      messageId,
+    );
+    return readBy.data;
   }
 }

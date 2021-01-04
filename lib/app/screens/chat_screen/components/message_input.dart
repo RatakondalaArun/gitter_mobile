@@ -36,7 +36,7 @@ class MessageInput extends StatelessWidget {
                   enableInteractiveSelection: true,
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
-                  maxLines: 20,
+                  maxLines: 15,
                   inputFormatters: [],
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
@@ -44,7 +44,7 @@ class MessageInput extends StatelessWidget {
                       vertical: 2,
                     ),
                     border: InputBorder.none,
-                    hintText: 'Send a message, We support markdown',
+                    hintText: 'Send a message',
                   ),
                 ),
               ),
