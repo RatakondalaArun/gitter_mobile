@@ -4,6 +4,7 @@ class OnlineDatabaseService extends DatabaseServiceAbs {
   static OnlineDatabaseService _instance = OnlineDatabaseService._();
   OfflineDatabaseService _offlineDB;
   CurrentUserDatabase _userDB;
+  OnlineMessagesDatabase _messagesDB;
   bool _isInitilized = false;
   GitterApi _gitterApi;
 
@@ -23,10 +24,14 @@ class OnlineDatabaseService extends DatabaseServiceAbs {
   CurrentUserDatabase get currentUser => _userDB;
 
   @override
+  MessagesDatabase get messagesDB => _messagesDB;
+
+  @override
   Future<void> init() async {
     final accessToken = await _offlineDB.creditional.get('access_token');
     _gitterApi = GitterApi(ApiKeys(accessToken));
     _userDB = OnlineCurrentUserDatabase(_gitterApi);
+    _messagesDB = OnlineMessagesDatabase(_gitterApi);
     _isInitilized = true;
   }
 
@@ -56,7 +61,7 @@ class OnlineCurrentUserDatabase extends CurrentUserDatabase {
 
   @override
   Future<User> get() async {
-    return User.fromMap(await _gitterApi.v1.userResource.me());
+    return User.fromMap((await _gitterApi.v1.userResource.me()).data);
   }
 
   @override
@@ -67,11 +72,61 @@ class OnlineCurrentUserDatabase extends CurrentUserDatabase {
   @override
   Future<List<Room>> getRooms(String userId) async {
     final mapRooms = await _gitterApi.v1.userResource.getRooms(userId);
-    return mapRooms.map((room) => Room.fromMap(room)).toList();
+    return mapRooms.data.map((room) => Room.fromMap(room)).toList();
   }
 
   @override
   Future<void> putRooms(List<Room> rooms) {
     throw UnimplementedError();
+  }
+}
+
+class OnlineMessagesDatabase extends MessagesDatabase {
+  GitterApi _gitterApi;
+  OnlineMessagesDatabase(this._gitterApi);
+  @override
+  Future<List<Message>> getMessages(
+    String roomId, {
+    String beforeId,
+    String afterId,
+    int skip,
+    int limit,
+    String query,
+  }) async {
+    final messages = await _gitterApi.v1.messageResource.getMessages(
+      roomId,
+      beforeId: beforeId,
+      afterId: afterId,
+      skip: skip,
+      limit: limit,
+      query: query,
+    );
+    return messages.data.map((m) => Message.fromMap(m)).toList();
+  }
+
+  @override
+  Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
+    return _gitterApi.v1.streamApi.chatMessages(roomId);
+  }
+
+  @override
+  Future<void> createMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    return _gitterApi.v1.messageResource.sendMessage(
+      roomId,
+      message,
+      status: status,
+    );
+  }
+
+  Future<List> readBy(String roomId, String messageId) async {
+    final readBy = await _gitterApi.v1.messageResource.messageReadBy(
+      roomId,
+      messageId,
+    );
+    return readBy.data;
   }
 }

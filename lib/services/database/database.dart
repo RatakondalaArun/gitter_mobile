@@ -1,5 +1,5 @@
-import 'package:gitterapi/models/room/room.dart';
-import 'package:gitterapi/models/user.dart';
+import 'package:gitterapi/gitter_api.dart';
+import 'package:gitterapi/models.dart';
 
 import 'abs/database_abs.dart';
 
@@ -12,6 +12,7 @@ class DatabaseService implements DatabaseServiceAbs {
   DatabaseServiceAbs _onlineDb;
   CreditionalDatabase _creditionalDB;
   CurrentUserDatabase _currentUserDB;
+  MessagesDatabase _messagesDB;
 
   static DatabaseService _instance = DatabaseService._();
 
@@ -34,6 +35,9 @@ class DatabaseService implements DatabaseServiceAbs {
   @override
   CreditionalDatabase get creditional => _creditionalDB;
 
+  @override
+  MessagesDatabase get messagesDB => _messagesDB;
+
   DatabaseService._() {
     init();
   }
@@ -51,6 +55,7 @@ class DatabaseService implements DatabaseServiceAbs {
       _onlineDb.currentUser,
       _offlineDB.currentUser,
     );
+    _messagesDB = _MessageService(_onlineDb.messagesDB, _offlineDB.messagesDB);
     _isInitilized = true && _offlineDB.isInitilized && _onlineDb.isInitilized;
   }
 
@@ -112,5 +117,50 @@ class _CurrentUserService extends CurrentUserDatabase {
   @override
   Future<void> putRooms(List<Room> rooms) {
     return _offlineDb.putRooms(rooms);
+  }
+}
+
+class _MessageService implements MessagesDatabase {
+  final MessagesDatabase _onlineDB;
+  final MessagesDatabase _offlineDB;
+
+  _MessageService(this._onlineDB, this._offlineDB);
+
+  @override
+  Future<List<Message>> getMessages(
+    String roomId, {
+    String beforeId,
+    String afterId,
+    int skip,
+    int limit,
+    String query,
+  }) {
+    return _onlineDB.getMessages(
+      roomId,
+      beforeId: beforeId,
+      afterId: afterId,
+      skip: skip,
+      limit: limit,
+      query: query,
+    );
+  }
+
+  @override
+  Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
+    return _onlineDB.getMessagesStream(roomId);
+  }
+
+  @override
+  Future<void> createMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    return _onlineDB.createMessage(roomId, message, status: status);
+  }
+
+  @override
+  Future<List> readBy(String roomId, String messageId) {
+    return _onlineDB.readBy(roomId, messageId);
   }
 }

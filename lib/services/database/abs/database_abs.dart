@@ -20,6 +20,9 @@ abstract class DatabaseServiceAbs {
   /// Operations on current user.
   CurrentUserDatabase get currentUser;
 
+  /// Operations on rooms messages
+  MessagesDatabase get messagesDB;
+
   /// Call this before using any method.
   Future<void> init();
 
@@ -60,75 +63,31 @@ abstract class CreditionalDatabase {
 
 abstract class UserResourceDatabase {}
 
-/// Base class for all creditionals
-// abstract class CreditionalItem {
-//   /// This should be a unique name.
-//   ///
-//   /// Preffered class name as snakecase. Must not be null.
-//   /// ```
-//   /// String get name => 'creditional_item';
-//   /// ```
-//   String get name;
+abstract class MessagesDatabase {
+  Future<List<Message>> getMessages(
+    String roomId, {
+    String beforeId,
+    String afterId,
+    int skip,
+    int limit,
+    String query,
+  }) {
+    throw UnimplementedError();
+  }
 
-//   /// Returns `lastUpdated` in [DateTime] format.
-//   DateTime get lastUpdatedAs => DateTime.tryParse(lastUpdated);
+  Future<Stream<StreamEvent>> getMessagesStream(String roomId) {
+    throw UnimplementedError();
+  }
 
-//   /// Last updated time in UTC and stored in String format.
-//   final String lastUpdated;
+  Future<void> createMessage(
+    String roomId,
+    String message, {
+    bool status = false,
+  }) {
+    throw UnimplementedError();
+  }
 
-//   /// Creates a instance.
-//   CreditionalItem(this.lastUpdated);
-
-//   /// Returns [Map<String,dynamic>]
-//   Map<String, dynamic> toMap();
-// }
-
-// /// This CreditionalItem holds access_token
-// class AccessTokenCItem extends CreditionalItem {
-//   final String accessToken;
-
-//   @override
-//   String get name => 'access_token_creditional';
-
-//   AccessTokenCItem({
-//     this.accessToken,
-//     String lastUpdated,
-//   }) : super(lastUpdated);
-
-//   factory AccessTokenCItem.create(String accessToken) {
-//     return AccessTokenCItem(
-//       accessToken: accessToken,
-//       lastUpdated: DateTime.now().toUtc().toString(),
-//     );
-//   }
-
-//   factory AccessTokenCItem.fromMap(Map map) {
-//     return AccessTokenCItem(
-//       accessToken: map['accessToken'],
-//       lastUpdated: map['lastUpdated'],
-//     );
-//   }
-
-//   @override
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'accessToken': accessToken,
-//       'lastUpdated': lastUpdated,
-//     };
-//   }
-
-//   AccessTokenCItem copyWith({
-//     String accessToken,
-//     String lastUpdated,
-//   }) {
-//     return AccessTokenCItem(
-//       accessToken: accessToken ?? this.accessToken,
-//       lastUpdated: lastUpdated ?? this.lastUpdated,
-//     );
-//   }
-
-//   @override
-//   String toString() {
-//     return 'Creditional(lastUpdated: $lastUpdated, accessToken: $accessToken)';
-//   }
-// }
+  Future<List> readBy(String roomId, String messageId) {
+    throw UnimplementedError();
+  }
+}
