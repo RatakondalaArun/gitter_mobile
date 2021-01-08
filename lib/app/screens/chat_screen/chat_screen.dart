@@ -85,6 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
             left: 0,
             right: 0,
             bottom: 0,
+            // TODO: show join button incase user is not a roomMember.
             child: MessageInput(
               textController: _messageController,
               focusNode: _messageInputFocus,

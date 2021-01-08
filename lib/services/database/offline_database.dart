@@ -2,10 +2,31 @@ part of services.database;
 
 class OfflineDatabaseService extends DatabaseServiceAbs {
   static OfflineDatabaseService _instance = OfflineDatabaseService._();
+  bool _isInitilized = false;
   CreditionalDatabase _creditionalDB;
   CurrentUserDatabase _currentUserDB;
   MessagesDatabase _messagesDb;
-  bool _isInitilized = false;
+  OfflineRoomsDatabase _roomsDB;
+  UsersDatabase _usersDB;
+
+  OfflineDatabaseService._();
+
+  @override
+  Future<void> init() async {
+    // TODO(@RatakondalaArun): Change this to application storage directory
+    if (_isInitilized) return;
+    final path = (await pp.getExternalStorageDirectory()).path;
+    Hive.init(path);
+    _creditionalDB =
+        OfflineCreditionalDatabase(await Hive.openBox('creditional'));
+    _currentUserDB = OfflineCurrentUserDatabase(
+      await Hive.openBox<Map>('user'),
+    );
+    _messagesDb = OfflineMessagesDatabase();
+    _roomsDB = OfflineRoomsDatabase();
+    _usersDB = OfflineUsersDatabase();
+    _isInitilized = true;
+  }
 
   static OfflineDatabaseService get instance => _instance;
 
@@ -25,27 +46,16 @@ class OfflineDatabaseService extends DatabaseServiceAbs {
     return _currentUserDB;
   }
 
-  OfflineDatabaseService._();
-
   @override
-  Future<void> init() async {
-    // TODO(@RatakondalaArun): Change this to application storage directory
-    if (_isInitilized) return;
-    final path = (await pp.getExternalStorageDirectory()).path;
-    Hive.init(path);
-    _creditionalDB =
-        OfflineCreditionalDatabase(await Hive.openBox('creditional'));
-    _currentUserDB = OfflineCurrentUserDatabase(
-      await Hive.openBox<Map>('user'),
-    );
-    _messagesDb = OfflineMessagesDatabase();
-    _isInitilized = true;
-  }
+  RoomsDatabase get roomsDB => _roomsDB;
 
   Future<void> close() => Hive.close();
 
   @override
   MessagesDatabase get messagesDB => _messagesDb;
+
+  @override
+  UsersDatabase get usersDB => _usersDB;
 }
 
 class OfflineCurrentUserDatabase extends CurrentUserDatabase {
@@ -124,3 +134,7 @@ class OfflineCreditionalDatabase extends CreditionalDatabase {
 }
 
 class OfflineMessagesDatabase extends MessagesDatabase {}
+
+class OfflineUsersDatabase extends UsersDatabase {}
+
+class OfflineRoomsDatabase extends RoomsDatabase {}

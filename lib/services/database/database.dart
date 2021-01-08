@@ -7,14 +7,44 @@ export 'abs/database_abs.dart'
     show DatabaseServiceAbs, CurrentUserDatabase, DatabaseServiceException;
 
 class DatabaseService implements DatabaseServiceAbs {
+  static DatabaseService _instance = DatabaseService._();
   bool _isInitilized = false;
+  // resources
   DatabaseServiceAbs _offlineDB;
-  DatabaseServiceAbs _onlineDb;
+  DatabaseServiceAbs _onlineDB;
   CreditionalDatabase _creditionalDB;
   CurrentUserDatabase _currentUserDB;
   MessagesDatabase _messagesDB;
+  UsersDatabase _usersDB;
+  RoomsDatabase _roomsDB;
 
-  static DatabaseService _instance = DatabaseService._();
+  DatabaseService._() {
+    init();
+  }
+
+  @override
+  Future<void> init() async {
+    // Must be initilized before initilizing others
+    _offlineDB = OfflineDatabaseService.instance;
+    _onlineDB = OnlineDatabaseService.instance;
+    await _offlineDB.init();
+    _creditionalDB = _offlineDB.creditional;
+    await _onlineDB.init();
+
+    _currentUserDB = _CurrentUserService(
+      _onlineDB.currentUser,
+      _offlineDB.currentUser,
+    );
+    _messagesDB = _MessageService(_onlineDB.messagesDB, _offlineDB.messagesDB);
+    _usersDB = _UsersService(_onlineDB.usersDB, _offlineDB.usersDB);
+    _roomsDB = _RoomsService(_onlineDB.roomsDB, _offlineDB.roomsDB);
+    _isInitilized = true && _offlineDB.isInitilized && _onlineDB.isInitilized;
+  }
+
+  @override
+  Future<void> close() {
+    return _offlineDB.close();
+  }
 
   /// Returns a singleton instance of [DatabaseService].
   static DatabaseService get instance => _instance;
@@ -38,31 +68,11 @@ class DatabaseService implements DatabaseServiceAbs {
   @override
   MessagesDatabase get messagesDB => _messagesDB;
 
-  DatabaseService._() {
-    init();
-  }
+  @override
+  RoomsDatabase get roomsDB => _roomsDB;
 
   @override
-  Future<void> init() async {
-    // Must be initilized before initilizing others
-    _offlineDB = OfflineDatabaseService.instance;
-    _onlineDb = OnlineDatabaseService.instance;
-    await _offlineDB.init();
-    _creditionalDB = _offlineDB.creditional;
-    await _onlineDb.init();
-
-    _currentUserDB = _CurrentUserService(
-      _onlineDb.currentUser,
-      _offlineDB.currentUser,
-    );
-    _messagesDB = _MessageService(_onlineDb.messagesDB, _offlineDB.messagesDB);
-    _isInitilized = true && _offlineDB.isInitilized && _onlineDb.isInitilized;
-  }
-
-  @override
-  Future<void> close() {
-    return _offlineDB.close();
-  }
+  UsersDatabase get usersDB => _usersDB;
 }
 
 class _CurrentUserService extends CurrentUserDatabase {
@@ -162,5 +172,32 @@ class _MessageService implements MessagesDatabase {
   @override
   Future<List> readBy(String roomId, String messageId) {
     return _onlineDB.readBy(roomId, messageId);
+  }
+}
+
+class _RoomsService implements RoomsDatabase {
+  final RoomsDatabase _onlineDB;
+  final RoomsDatabase _offlineDB;
+
+  _RoomsService(
+    this._onlineDB,
+    this._offlineDB,
+  );
+
+  @override
+  Future<List<Room>> searchRooms(String query, {int limit}) {
+    return _onlineDB.searchRooms(query, limit: limit);
+  }
+}
+
+class _UsersService implements UsersDatabase {
+  final UsersDatabase _onlineDB;
+  final UsersDatabase _offlineDB;
+
+  _UsersService(this._onlineDB, this._offlineDB);
+
+  @override
+  Future<List<User>> searchUsers(String query, {int limit}) {
+    return _onlineDB.searchUsers(query, limit: limit);
   }
 }
