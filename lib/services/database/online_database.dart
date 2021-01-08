@@ -2,17 +2,36 @@ part of services.database;
 
 class OnlineDatabaseService extends DatabaseServiceAbs {
   static OnlineDatabaseService _instance = OnlineDatabaseService._();
+  bool _isInitilized = false;
+  // services
   OfflineDatabaseService _offlineDB;
   CurrentUserDatabase _userDB;
   OnlineMessagesDatabase _messagesDB;
-  bool _isInitilized = false;
+  OnlineUsersDatabase _usersDB;
+  OnlineRoomsDatabase _roomsDB;
   GitterApi _gitterApi;
-
-  static OnlineDatabaseService get instance => _instance;
 
   OnlineDatabaseService._() {
     _offlineDB = OfflineDatabaseService._instance;
   }
+
+  @override
+  Future<void> init() async {
+    final accessToken = await _offlineDB.creditional.get('access_token');
+    _gitterApi = GitterApi(ApiKeys(accessToken));
+    _userDB = OnlineCurrentUserDatabase(_gitterApi);
+    _messagesDB = OnlineMessagesDatabase(_gitterApi);
+    _usersDB = OnlineUsersDatabase(_gitterApi);
+    _roomsDB = OnlineRoomsDatabase(_gitterApi);
+    _isInitilized = true;
+  }
+
+  @override
+  Future<void> close() {
+    return Future<void>.value();
+  }
+
+  static OnlineDatabaseService get instance => _instance;
 
   @override
   bool get isInitilized => _isInitilized;
@@ -27,18 +46,10 @@ class OnlineDatabaseService extends DatabaseServiceAbs {
   MessagesDatabase get messagesDB => _messagesDB;
 
   @override
-  Future<void> init() async {
-    final accessToken = await _offlineDB.creditional.get('access_token');
-    _gitterApi = GitterApi(ApiKeys(accessToken));
-    _userDB = OnlineCurrentUserDatabase(_gitterApi);
-    _messagesDB = OnlineMessagesDatabase(_gitterApi);
-    _isInitilized = true;
-  }
+  RoomsDatabase get roomsDB => _roomsDB;
 
   @override
-  Future<void> close() {
-    return null;
-  }
+  UsersDatabase get usersDB => _usersDB;
 }
 
 class OnlineCurrentUserDatabase extends CurrentUserDatabase {
@@ -128,5 +139,42 @@ class OnlineMessagesDatabase extends MessagesDatabase {
       messageId,
     );
     return readBy.data;
+  }
+}
+
+class OnlineUsersDatabase extends UsersDatabase {
+  final GitterApi _gitterApi;
+
+  OnlineUsersDatabase(this._gitterApi);
+
+  @override
+  Future<List<User>> searchUsers(String query, {int limit}) async {
+    final result = await _gitterApi.v1.userResource.search(
+      query,
+      limit: limit,
+    );
+    final results = result.data['results'] as List;
+    if (results == null || results.isEmpty) return [];
+
+    return results.map((u) => User.fromMap(u)).toList();
+  }
+}
+
+class OnlineRoomsDatabase extends RoomsDatabase {
+  final GitterApi _gitterApi;
+
+  OnlineRoomsDatabase(this._gitterApi);
+
+  @override
+  Future<List<Room>> searchRooms(String query, {int limit}) async {
+    final result = await _gitterApi.v1.roomResource.search(
+      query,
+      limit: limit,
+    );
+
+    final results = result.data['results'] as List;
+    if (results == null || results.isEmpty) return [];
+
+    return results.map((e) => Room.fromMap(e)).toList();
   }
 }

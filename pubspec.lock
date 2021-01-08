@@ -217,7 +217,7 @@ packages:
     description:
       path: "."
       ref: dev
-      resolved-ref: "54695781904900f185c3e76e9d81435d7c51be63"
+      resolved-ref: ca2c1a738c80561adcc34a15b90da7cc37aa2237
       url: "https://github.com/RatakondalaArun/gitterapi.git"
     source: git
     version: "0.0.1"
@@ -339,7 +339,7 @@ packages:
       name: path_provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.24"
+    version: "1.6.27"
   path_provider_linux:
     dependency: transitive
     description:
@@ -353,7 +353,7 @@ packages:
       name: path_provider_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.4+6"
+    version: "0.0.4+8"
   path_provider_platform_interface:
     dependency: transitive
     description:

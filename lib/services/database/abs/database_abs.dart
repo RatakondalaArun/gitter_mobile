@@ -23,6 +23,12 @@ abstract class DatabaseServiceAbs {
   /// Operations on rooms messages
   MessagesDatabase get messagesDB;
 
+  /// Users database.
+  UsersDatabase get usersDB;
+
+  /// Rooms database.
+  RoomsDatabase get roomsDB;
+
   /// Call this before using any method.
   Future<void> init();
 
@@ -61,7 +67,11 @@ abstract class CreditionalDatabase {
   Future<void> delete(String name);
 }
 
-abstract class UserResourceDatabase {}
+abstract class UsersDatabase {
+  Future<List<User>> searchUsers(String query, {int limit}) {
+    throw UnimplementedError();
+  }
+}
 
 abstract class MessagesDatabase {
   Future<List<Message>> getMessages(
@@ -88,6 +98,12 @@ abstract class MessagesDatabase {
   }
 
   Future<List> readBy(String roomId, String messageId) {
+    throw UnimplementedError();
+  }
+}
+
+abstract class RoomsDatabase {
+  Future<List<Room>> searchRooms(String query, {int limit}) {
     throw UnimplementedError();
   }
 }

@@ -4,10 +4,10 @@ import 'package:gitterapi/models.dart';
 import '../../../widgets/widgets.dart';
 import '../../screens.dart';
 
-class HomeTile extends StatelessWidget {
+class SearchTile extends StatelessWidget {
   final Room room;
 
-  const HomeTile({
+  const SearchTile({
     Key key,
     this.room,
   }) : super(key: key);
@@ -47,11 +47,14 @@ class HomeTile extends StatelessWidget {
             )
           : null,
       subtitle: Wrap(
-        spacing: 2,
-        runSpacing: 1,
-        children: _renderedTags(),
+        children: _renderTags(),
       ),
     );
+  }
+
+  List<Widget> _renderTags() {
+    if (room.tags == null) return <Widget>[];
+    return room.tags.map<Widget>((tag) => _TagBadge(tag: tag)).toList();
   }
 
   bool _shouldShowUnread(int count) {
@@ -62,11 +65,6 @@ class HomeTile extends StatelessWidget {
   // if it is more than 99
   String _formatUnreadCount(int count) {
     return count > 99 ? '99+' : '$count';
-  }
-
-  List<Widget> _renderedTags() {
-    if (room.tags == null) return <Widget>[];
-    return room.tags.map<Widget>((tag) => _TagBadge(tag: tag)).toList();
   }
 }
 
@@ -80,18 +78,13 @@ class _TagBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 6,
-        vertical: 1,
-      ),
       decoration: BoxDecoration(
-        color: Colors.blue.shade100,
+        color: Colors.green,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(
-        tag,
-        style: TextStyle(fontSize: 12),
-      ),
+      width: 100,
+      height: 100,
+      child: Text(tag),
     );
   }
 }
