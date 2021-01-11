@@ -158,6 +158,13 @@ class OnlineUsersDatabase extends UsersDatabase {
 
     return results.map((u) => User.fromMap(u)).toList();
   }
+
+  @override
+  Future<UserProfile> getProfile(String username) async {
+    final result =
+        await _gitterApi.v1.userResource.getProfileByUsername(username);
+    return UserProfile.fromMap(result.data);
+  }
 }
 
 class OnlineRoomsDatabase extends RoomsDatabase {

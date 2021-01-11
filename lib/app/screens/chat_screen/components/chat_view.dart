@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gitter/app/screens/screens.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart' as ul;
 
@@ -60,6 +61,7 @@ class ChatView extends StatelessWidget {
                   message: cmessage,
                   isOneToOne: state.room.oneToOne,
                 ),
+                onTapProfile: (u) => _onTapUserProfile(u, context),
               );
             },
             separatorBuilder: (context, index) {
@@ -151,6 +153,13 @@ class ChatView extends StatelessWidget {
     if (await ul.canLaunch(url)) {
       ul.launch(url);
     }
+  }
+
+  void _onTapUserProfile(User user, BuildContext context) {
+    Navigator.of(context).pushNamed(
+      UserScreen.routeName,
+      arguments: {'user': user},
+    );
   }
 }
 
