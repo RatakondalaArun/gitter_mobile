@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'components/home_tile.dart';
 import 'components/hs_drawer.dart';
 import 'components/search_bar.dart';
-import '../../widgets/widgets.dart';
+import '../screens.dart';
 import '../../../blocs/blocs.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -141,6 +141,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showAccount() {
     // TODO(@RatakondalaArun): open account screen
+    final user = BlocProvider.of<AuthBloc>(context).state.user;
+    Navigator.of(context).pushNamed(
+      UserScreen.routeName,
+      arguments: {'user': user},
+    );
   }
 }
 

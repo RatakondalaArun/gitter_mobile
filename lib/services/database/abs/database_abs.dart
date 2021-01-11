@@ -71,6 +71,10 @@ abstract class UsersDatabase {
   Future<List<User>> searchUsers(String query, {int limit}) {
     throw UnimplementedError();
   }
+
+  Future<UserProfile> getProfile(String username) {
+    throw UnimplementedError();
+  }
 }
 
 abstract class MessagesDatabase {

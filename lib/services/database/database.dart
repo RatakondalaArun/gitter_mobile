@@ -200,4 +200,9 @@ class _UsersService implements UsersDatabase {
   Future<List<User>> searchUsers(String query, {int limit}) {
     return _onlineDB.searchUsers(query, limit: limit);
   }
+
+  @override
+  Future<UserProfile> getProfile(String username) {
+    return _onlineDB.getProfile(username);
+  }
 }

@@ -186,6 +186,24 @@ class ChatBubble extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             ),
+                            SizedBox(width: 10),
+                            if (message.isEdited)
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 14,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    'edited',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       ),
@@ -368,4 +386,5 @@ Color _getColor(String letter) {
 
 extension on Message {
   bool get isDeleted => text == null || text.isEmpty;
+  bool get isEdited => editedAt != null;
 }
