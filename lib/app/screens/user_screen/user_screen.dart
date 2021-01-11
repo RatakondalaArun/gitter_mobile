@@ -6,6 +6,7 @@ import '../../../blocs/blocs.dart';
 import '../../helpers/helpers.dart' as helpers;
 import '../../widgets/widgets.dart';
 import 'components/github_profile.dart';
+import 'components/github_stats.dart';
 
 class UserScreen extends StatefulWidget {
   static const routeName = '/UserScreen';
@@ -114,7 +115,7 @@ class _UserScreenState extends State<UserScreen> {
               ),
 
               Divider(),
-              _ContactSection(isCurrentUser: isCurrentUser),
+              _Details(isCurrentUser: isCurrentUser),
               // repos
               // github org
             ],
@@ -137,10 +138,10 @@ class _UserScreenState extends State<UserScreen> {
   }
 }
 
-class _ContactSection extends StatelessWidget {
+class _Details extends StatelessWidget {
   final bool isCurrentUser;
 
-  const _ContactSection({
+  const _Details({
     Key key,
     this.isCurrentUser,
   }) : super(key: key);
@@ -152,62 +153,16 @@ class _ContactSection extends StatelessWidget {
           return Column(
             children: [
               if (state.userProfile.isUserFromGithub)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${state.userProfile.github.publicRepos} ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(
-                            text: 'Repos',
-                            style: TextStyle(color: Colors.black45),
-                          )
-                        ],
-                      ),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${state.userProfile.github.following} ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(
-                            text: 'Following',
-                            style: TextStyle(color: Colors.black45),
-                          )
-                        ],
-                      ),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${state.userProfile.github.followers} ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(
-                            text: 'Followers',
-                            style: TextStyle(color: Colors.black45),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                GithubProfileStats(githubStats: state.userProfile.github),
               ButtonBar(
                 mainAxisSize: MainAxisSize.max,
                 alignment: MainAxisAlignment.spaceAround,
                 children: [
                   if (!isCurrentUser)
                     FlatButton.icon(
-                      onPressed: () {},
-                      icon: Icon(Icons.chat_bubble_outline),
                       label: Text('chat'),
+                      icon: Icon(Icons.chat_bubble_outline),
+                      onPressed: () {},
                     ),
                   if (state.userProfile.isUserFromGithub)
                     FlatButton.icon(
