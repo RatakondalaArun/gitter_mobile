@@ -30,7 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
-    _roomBloc = BlocProvider.of<RoomBloc>(context);
+    _roomBloc = BlocProvider.of<RoomBloc>(context)..listen(_handleState);
     _chatScrollController = ScrollController();
     _messageController = TextEditingControllerWithMentions(text: '');
     _messageInputFocus = FocusNode();
@@ -50,6 +50,12 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!_shouldShowFAB.value) _shouldShowFAB.value = true;
     } else {
       _shouldShowFAB.value = false;
+    }
+  }
+
+  void _handleState(RoomState state) {
+    if (state.messageState == MessageSentState.sent) {
+      _messageController.text = '';
     }
   }
 
@@ -85,7 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            // TODO: show join button incase user is not a roomMember.
+            // TODO: #8 show join button incase user is not a roomMember.
             child: MessageInput(
               textController: _messageController,
               focusNode: _messageInputFocus,
@@ -126,6 +132,23 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: Container(
+              child: BlocBuilder<RoomBloc, RoomState>(
+                cubit: _roomBloc,
+                builder: (context, state) {
+                  return state.messageState == MessageSentState.sending
+                      ? LinearProgressIndicator(
+                          backgroundColor: Colors.transparent,
+                        )
+                      : Container();
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -140,7 +163,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage(String message) {
-    _roomBloc.add(RoomEventSendMessage(message));
+    final currentUser = BlocProvider.of<AuthBloc>(context).state.user;
+    _roomBloc.add(RoomEventSendMessage(
+      currentUser: currentUser,
+      message: message,
+    ));
   }
 }
 

@@ -3,11 +3,18 @@ part of blocs.room;
 enum RoomBlocState { initial, loading, loaded, error }
 enum RoomMessagesState { loading, loaded }
 enum RoomMessageStreamState { connecting, connected, disconnected }
+enum MessageSentState { sending, sent, failed }
 
 class RoomState {
   final RoomBlocState blocState;
   final RoomMessagesState messagesState;
   final RoomMessageStreamState messageStreamState;
+
+  /// Contains ids of the pending messages.
+  final Set<String> pendingMessagesIds;
+
+  /// tells if a message is being sent to server.
+  final MessageSentState messageState;
   final Room room;
   final bool isAtEdge;
   final List<Message> messages;
@@ -37,13 +44,16 @@ class RoomState {
   RoomState(
     this.blocState, {
     this.shouldUpdateChat = false,
+    Set<String> pendingMessagesIds,
+    this.messageState = MessageSentState.sent,
     this.messagesState = RoomMessagesState.loading,
     this.messageStreamState = RoomMessageStreamState.connecting,
     this.room,
     this.isAtEdge = false,
-    this.messages = const [],
+    List<Message> messages,
     this.errorMessage,
-  });
+  })  : this.pendingMessagesIds = pendingMessagesIds ?? <String>{},
+        this.messages = messages ?? <Message>[];
 
   factory RoomState.initial() {
     return RoomState(
@@ -83,8 +93,10 @@ class RoomState {
 
   RoomState update({
     RoomBlocState blocState,
+    MessageSentState messageState,
     RoomMessagesState messagesState,
     RoomMessageStreamState roomMessageStreamState,
+    Set<String> pendingMessagesIds,
     Room room,
     List<Message> messages,
     String errorMessage,
@@ -93,6 +105,8 @@ class RoomState {
   }) {
     return RoomState(
       blocState ?? this.blocState,
+      pendingMessagesIds: pendingMessagesIds ?? this.pendingMessagesIds,
+      messageState: messageState ?? this.messageState,
       messagesState: messagesState ?? this.messagesState,
       messageStreamState: messageStreamState ?? this.messageStreamState,
       room: room ?? this.room,

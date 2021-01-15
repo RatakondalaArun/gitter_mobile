@@ -161,7 +161,7 @@ class _MessageService implements MessagesDatabase {
   }
 
   @override
-  Future<void> createMessage(
+  Future<Message> createMessage(
     String roomId,
     String message, {
     bool status = false,
