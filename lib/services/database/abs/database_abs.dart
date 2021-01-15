@@ -93,7 +93,7 @@ abstract class MessagesDatabase {
     throw UnimplementedError();
   }
 
-  Future<void> createMessage(
+  Future<Message> createMessage(
     String roomId,
     String message, {
     bool status = false,

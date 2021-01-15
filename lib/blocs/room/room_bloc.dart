@@ -78,6 +78,12 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
     try {
       if (event.streamEvent.isHeartbeat) {
         print('HeartBeat event');
+      } else if (state.pendingMessagesIds
+          .contains(Message.fromMap(event.streamEvent.data).id)) {
+        // removes the message id from pending list
+        state.pendingMessagesIds
+            .remove(Message.fromMap(event.streamEvent.data).id);
+        yield state.update(shouldUpdateChat: true);
       } else if (Message.fromMap(event.streamEvent.data).isChild) {
         final message = Message.fromMap(event.streamEvent.data);
 
@@ -154,10 +160,41 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
 
   Stream<RoomState> _mapSendMessageToState(RoomEventSendMessage event) async* {
     try {
-      await _roomRepo.sendMessage(state.room.id, event.message);
+      // creates a default message object with currentuser and text
+      final mockMessage = MessageExtn.fromUser(
+        fromUser: event.currentUser,
+        text: event.message,
+      );
+
+      // inserts that mock message into state
+      state.messages.insert(0, mockMessage);
+      yield state.update(
+        messageState: MessageSentState.sending,
+        shouldUpdateChat: true,
+      );
+
+      // returns a message object sent from server
+      final realMessage =
+          await _roomRepo.sendMessage(state.room.id, event.message);
+
+      // replaces mockmessage with realmessage and updates state.
+      state.messages
+        ..removeAt(0)
+        ..insert(0, realMessage);
+      state.pendingMessagesIds.add(realMessage.id);
+      yield state.update(
+        messageState: MessageSentState.sent,
+        shouldUpdateChat: true,
+      );
     } catch (e, st) {
       //
       print(st);
+      yield state.update(
+        blocState: RoomBlocState.error,
+        messageState: MessageSentState.sent,
+        shouldUpdateChat: true,
+        errorMessage: 'Failed to send message',
+      );
     }
   }
 
@@ -165,5 +202,28 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
   Future<void> close() {
     _messageStreamSub?.cancel();
     return super.close();
+  }
+}
+
+extension MessageExtn on Message {
+  static Message fromUser({
+    User fromUser,
+    String text,
+    String parentId,
+  }) {
+    return Message(
+      id: 'id_$text',
+      text: text,
+      html: text,
+      sent: DateTime.now().toUtc().toString(),
+      fromUser: fromUser,
+      parentId: parentId,
+      unread: false,
+      readBy: 0,
+      urls: [],
+      mentions: [],
+      issues: [],
+      meta: [],
+    );
   }
 }

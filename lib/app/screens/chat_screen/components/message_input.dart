@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gitter/blocs/blocs.dart';
 
 class MessageInput extends StatelessWidget {
   final TextEditingController textController;
@@ -48,20 +50,29 @@ class MessageInput extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: IconButton(
-                  tooltip: 'Send',
-                  splashRadius: 30,
-                  icon: Icon(
-                    Icons.send,
-                    color: Colors.white,
-                  ),
-                  onPressed: _onSend,
-                ),
+              BlocBuilder<RoomBloc, RoomState>(
+                buildWhen: (previous, current) {
+                  return previous.messageState != current.messageState;
+                },
+                builder: (context, state) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: IconButton(
+                      tooltip: 'Send',
+                      splashRadius: 30,
+                      icon: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
+                      onPressed: state.messageState == MessageSentState.sending
+                          ? null
+                          : _onSend,
+                    ),
+                  );
+                },
               )
             ],
           ),
@@ -73,6 +84,5 @@ class MessageInput extends StatelessWidget {
   void _onSend() {
     if (textController.text.isEmpty) return;
     onSend?.call(textController.text.trim());
-    textController.text = '';
   }
 }

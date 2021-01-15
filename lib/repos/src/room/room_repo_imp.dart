@@ -30,7 +30,7 @@ class RoomRepoImp extends RoomRepoAbs {
   }
 
   @override
-  Future<void> sendMessage(
+  Future<Message> sendMessage(
     String roomId,
     String message, {
     bool status = false,

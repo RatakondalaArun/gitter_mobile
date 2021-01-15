@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gitter/app/widgets/widgets.dart';
 
 import 'components/home_tile.dart';
 import 'components/hs_drawer.dart';
@@ -163,12 +164,13 @@ class _RoomsPage extends StatelessWidget {
         if (state.isInitial) {
           return Container(
             alignment: Alignment.center,
-            child: Text('Loading'),
+            child: GitterLoadingIndicator(),
           );
         }
         return ListView.builder(
           controller: controller,
           itemCount: state.rooms.length,
+          physics: NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             return HomeTile(
               room: state.rooms[index],

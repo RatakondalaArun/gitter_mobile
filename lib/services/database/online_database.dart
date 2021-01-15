@@ -121,16 +121,17 @@ class OnlineMessagesDatabase extends MessagesDatabase {
   }
 
   @override
-  Future<void> createMessage(
+  Future<Message> createMessage(
     String roomId,
     String message, {
     bool status = false,
-  }) {
-    return _gitterApi.v1.messageResource.sendMessage(
+  }) async {
+    final result = await _gitterApi.v1.messageResource.sendMessage(
       roomId,
       message,
       status: status,
     );
+    return Message.fromMap(result.data);
   }
 
   Future<List> readBy(String roomId, String messageId) async {
