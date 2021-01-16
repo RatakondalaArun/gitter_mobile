@@ -18,8 +18,10 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
       return PageRouteBuilder<Offset>(
         pageBuilder: (_, __, ___) {
           return BlocProvider(
-            create: (context) =>
-                RoomBloc(roomRepo)..add(RoomEventInitilize(room)),
+            create: (context) {
+              return RoomBloc(roomRepo, authRepo)
+                ..add(RoomEventInitilize(room));
+            },
             lazy: false,
             child: ChatScreen(room: room),
           );

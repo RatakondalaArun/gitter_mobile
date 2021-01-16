@@ -104,6 +104,18 @@ abstract class MessagesDatabase {
   Future<List> readBy(String roomId, String messageId) {
     throw UnimplementedError();
   }
+
+  Future<void> markMessageAsRead(
+    String userId,
+    String roomId,
+    List<String> messageIds,
+  ) {
+    throw UnimplementedError();
+  }
+
+  Future<void> markAllMessagesAsRead(String userId, String roomId) {
+    throw UnimplementedError();
+  }
 }
 
 abstract class RoomsDatabase {

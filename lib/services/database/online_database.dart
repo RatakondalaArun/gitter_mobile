@@ -141,6 +141,22 @@ class OnlineMessagesDatabase extends MessagesDatabase {
     );
     return readBy.data;
   }
+
+  Future<void> markMessageAsRead(
+    String userId,
+    String roomId,
+    List<String> messageIds,
+  ) {
+    return _gitterApi.v1.messageResource.markMessagesAsRead(
+      userId,
+      roomId,
+      chatIds: messageIds,
+    );
+  }
+
+  Future<void> markAllMessagesAsRead(String userId, String roomId) {
+    return _gitterApi.v1.messageResource.markAllMessagesAsRead(userId, roomId);
+  }
 }
 
 class OnlineUsersDatabase extends UsersDatabase {

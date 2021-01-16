@@ -12,9 +12,11 @@ part 'room_event.dart';
 part 'room_state.dart';
 
 class RoomBloc extends Bloc<RoomEvent, RoomState> {
+  AuthRepoImp _authRepo;
   RoomRepoAbs _roomRepo;
+  User _currentUser;
   StreamSubscription _messageStreamSub;
-  RoomBloc(this._roomRepo) : super(RoomState.initial());
+  RoomBloc(this._roomRepo, this._authRepo) : super(RoomState.initial());
 
   @override
   Stream<RoomState> mapEventToState(RoomEvent event) async* {
@@ -33,6 +35,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
 
   Stream<RoomState> _mapInitilizeToState(RoomEventInitilize event) async* {
     try {
+      _currentUser = await _authRepo.getCurrentUser();
       final messages = await _roomRepo.getMessages(event.room.id);
       yield RoomState.loaded(
         room: event.room,
@@ -48,6 +51,15 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       yield state.update(
         roomMessageStreamState: RoomMessageStreamState.connected,
       );
+
+      // TODO: mark each messages as read as the user views the message.
+      if (state.room.roomMember && state.room.hasUnreadMessages) {
+        // this can only happen if the user is a room member.
+        await _roomRepo.markAllMessagesAsRead(
+          _currentUser.id,
+          state.room.id,
+        );
+      }
     } catch (e, s) {
       print(e);
       print(s);
@@ -162,7 +174,7 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
     try {
       // creates a default message object with currentuser and text
       final mockMessage = MessageExtn.fromUser(
-        fromUser: event.currentUser,
+        fromUser: _currentUser,
         text: event.message,
       );
 
@@ -225,5 +237,11 @@ extension MessageExtn on Message {
       issues: [],
       meta: [],
     );
+  }
+}
+
+extension on Room {
+  bool get hasUnreadMessages {
+    return unreadItems != null && unreadItems != 0;
   }
 }

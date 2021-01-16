@@ -23,4 +23,12 @@ abstract class RoomRepoAbs {
     String message, {
     bool status = false,
   });
+
+  Future<void> markMessageAsRead(
+    String userId,
+    String roomId,
+    List<String> messageIds,
+  );
+
+  Future<void> markAllMessagesAsRead(String userId, String roomId);
 }

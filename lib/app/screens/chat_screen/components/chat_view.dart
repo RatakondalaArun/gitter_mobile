@@ -61,7 +61,7 @@ class ChatView extends StatelessWidget {
                   message: cmessage,
                   isOneToOne: state.room.oneToOne,
                 ),
-                onTapProfile: (u) => _onTapUserProfile(u, context),
+                onTapProfile: (u) => _onTapUserProfile(context, u),
               );
             },
             separatorBuilder: (context, index) {
@@ -155,7 +155,7 @@ class ChatView extends StatelessWidget {
     }
   }
 
-  void _onTapUserProfile(User user, BuildContext context) {
+  void _onTapUserProfile(BuildContext context, User user) {
     Navigator.of(context).pushNamed(
       UserScreen.routeName,
       arguments: {'user': user},

@@ -173,6 +173,20 @@ class _MessageService implements MessagesDatabase {
   Future<List> readBy(String roomId, String messageId) {
     return _onlineDB.readBy(roomId, messageId);
   }
+
+  @override
+  Future<void> markMessageAsRead(
+    String userId,
+    String roomId,
+    List<String> messageIds,
+  ) {
+    return _onlineDB.markMessageAsRead(userId, roomId, messageIds);
+  }
+
+  @override
+  Future<void> markAllMessagesAsRead(String userId, String roomId) {
+    return _onlineDB.markAllMessagesAsRead(userId, roomId);
+  }
 }
 
 class _RoomsService implements RoomsDatabase {
