@@ -1,16 +1,65 @@
-# gitter
+# Gitter Mobile App
 
-Gitter app
+[Gitter](https://gitter.im/) is a community for software developers.
+This project is the mobile application.
 
-## Getting Started
+*This is an unoffical Gitter mobile app build with flutter and dart.*
+*This app is still in development stage.*
 
-This project is a starting point for a Flutter application.
+<img height=500px src="screenshots/flutter_01.png"></img>
+<img height=500px src="screenshots/flutter_02.png"></img>
+<img height=500px src="screenshots/flutter_03.png"></img>
+<img height=500px src="screenshots/flutter_04.png"></img>
 
-A few resources to get you started if this is your first Flutter project:
+## Prerequisites and start
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Follow these instructions to setup and start an environment to develop gitter mobile.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1) You need flutter and dart sdk on you machine.
+    - Follow the instructions at Offical [installation guide](https://flutter.dev/docs/get-started/install).
+
+2) Fork and clone this project
+
+    ```bash
+    git clone https://github.com/{Your github username}/gitter_mobile.git
+    ```
+
+3) Create a file name `keys.dart` under `lib/keys` folder
+    This file should contains following code.
+
+    ```dart
+    // This are required to get access token from gitter.
+    // You can find this under https://developer.gitter.im/apps
+    class Keys {
+        // This is your app OAUTH KEY
+        static const CLIENT_ID = 'Your client id';
+        // This is your app OAUTH SECRET
+        static const CLIENT_SECERET = 'your client secret';
+        // This is your REDIRECT URL
+        static const CALLBACK_URL = 'gitter://success';
+        // This is the value which is used for call back 
+        static const CALL_BACK_URL_SCHEME = 'gitter';
+    }
+    ```
+
+4) Install Dependencies
+
+    ```shell
+    dart pub get 
+    ```
+
+5) Now run your app
+
+    ```bash
+    flutter run 
+    ```
+
+    and select your device.
+
+If you are unable to start the app you can create a [issue](https://github.com/RatakondalaArun/gitter_mobile/issues/new).
+
+Note
+
+- *This app does not support flutter web yet.*
+- *Not tested on IOS devices.*
+- *Pull requests should be made against `dev` not `main`.*
