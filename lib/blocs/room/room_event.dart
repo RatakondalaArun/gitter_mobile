@@ -2,14 +2,12 @@ part of blocs.room;
 
 abstract class RoomEvent {
   final Room room;
-  final User currentUser;
   final StreamEvent streamEvent;
   final String message;
   final Object error;
 
   RoomEvent({
     this.room,
-    this.currentUser,
     this.streamEvent,
     this.message,
     this.error,
@@ -33,11 +31,5 @@ class _StreamMessageDisconnectedEvent extends RoomEvent {
 }
 
 class RoomEventSendMessage extends RoomEvent {
-  RoomEventSendMessage({
-    User currentUser,
-    String message,
-  }) : super(
-          currentUser: currentUser,
-          message: message,
-        );
+  RoomEventSendMessage({String message}) : super(message: message);
 }

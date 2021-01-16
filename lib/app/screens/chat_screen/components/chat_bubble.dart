@@ -20,6 +20,7 @@ class ChatBubble extends StatelessWidget {
   final void Function(String url) onTapLink;
   final void Function(User user) onTapProfile;
   final void Function(String username) onTapUsername;
+  final void Function(Message message) rendered;
 
   BorderRadius get kBubbleRadious {
     return BorderRadius.only(
@@ -41,9 +42,11 @@ class ChatBubble extends StatelessWidget {
     this.onTapCode,
     this.onTapLink,
     this.onTapUsername,
+    this.rendered,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    rendered?.call(message);
     return Container(
       margin: EdgeInsets.only(
         top: isDifferentUser ? 8 : 0.8,

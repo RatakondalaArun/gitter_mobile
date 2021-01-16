@@ -163,11 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage(String message) {
-    final currentUser = BlocProvider.of<AuthBloc>(context).state.user;
-    _roomBloc.add(RoomEventSendMessage(
-      currentUser: currentUser,
-      message: message,
-    ));
+    _roomBloc.add(RoomEventSendMessage(message: message));
   }
 }
 

@@ -37,4 +37,18 @@ class RoomRepoImp extends RoomRepoAbs {
   }) {
     return _db.messagesDB.createMessage(roomId, message, status: status);
   }
+
+  @override
+  Future<void> markMessageAsRead(
+    String userId,
+    String roomId,
+    List<String> messageIds,
+  ) {
+    return _db.messagesDB.markMessageAsRead(userId, roomId, messageIds);
+  }
+
+  @override
+  Future<void> markAllMessagesAsRead(String userId, String roomId) {
+    return _db.messagesDB.markAllMessagesAsRead(userId, roomId);
+  }
 }
