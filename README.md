@@ -1,5 +1,7 @@
 # Gitter Mobile App
 
+[![Join the chat at https://gitter.im/RatakondalaArun/GitterMobile](https://badges.gitter.im/RatakondalaArun/GitterMobile.svg)](https://gitter.im/RatakondalaArun/GitterMobile?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [Gitter](https://gitter.im/) is a community for software developers.
 This project is the mobile application.
 
