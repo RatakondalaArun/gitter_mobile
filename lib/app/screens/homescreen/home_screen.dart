@@ -167,6 +167,7 @@ class _RoomsPage extends StatelessWidget {
             child: GitterLoadingIndicator(),
           );
         }
+        // todo: issue with list items they are not scrolling
         return ListView.builder(
           controller: controller,
           itemCount: state.rooms.length,

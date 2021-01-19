@@ -122,4 +122,8 @@ abstract class RoomsDatabase {
   Future<List<Room>> searchRooms(String query, {int limit}) {
     throw UnimplementedError();
   }
+
+  Future<Room> joinRoom(String userId, String roomId) {
+    throw UnimplementedError();
+  }
 }

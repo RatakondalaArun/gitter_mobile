@@ -31,4 +31,6 @@ abstract class RoomRepoAbs {
   );
 
   Future<void> markAllMessagesAsRead(String userId, String roomId);
+
+  Future<Room> joinRoom(String userId, String roomId);
 }

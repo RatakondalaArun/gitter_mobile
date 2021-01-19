@@ -51,4 +51,9 @@ class RoomRepoImp extends RoomRepoAbs {
   Future<void> markAllMessagesAsRead(String userId, String roomId) {
     return _db.messagesDB.markAllMessagesAsRead(userId, roomId);
   }
+
+  @override
+  Future<Room> joinRoom(String userId, String roomId) {
+    return _db.roomsDB.joinRoom(userId, roomId);
+  }
 }

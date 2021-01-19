@@ -202,6 +202,10 @@ class _RoomsService implements RoomsDatabase {
   Future<List<Room>> searchRooms(String query, {int limit}) {
     return _onlineDB.searchRooms(query, limit: limit);
   }
+
+  Future<Room> joinRoom(String userId, String roomId) async {
+    return _onlineDB.joinRoom(userId, roomId);
+  }
 }
 
 class _UsersService implements UsersDatabase {

@@ -4,11 +4,13 @@ enum RoomBlocState { initial, loading, loaded, error }
 enum RoomMessagesState { loading, loaded }
 enum RoomMessageStreamState { connecting, connected, disconnected }
 enum MessageSentState { sending, sent, failed }
+enum RoomMemberShipStatus { left, joining, joined }
 
 class RoomState {
   final RoomBlocState blocState;
   final RoomMessagesState messagesState;
   final RoomMessageStreamState messageStreamState;
+  final RoomMemberShipStatus memberShipStatus;
 
   /// Contains ids of the pending messages.
   final Set<String> pendingMessagesIds;
@@ -48,6 +50,7 @@ class RoomState {
     this.messageState = MessageSentState.sent,
     this.messagesState = RoomMessagesState.loading,
     this.messageStreamState = RoomMessageStreamState.connecting,
+    this.memberShipStatus = RoomMemberShipStatus.left,
     this.room,
     this.isAtEdge = false,
     List<Message> messages,
@@ -77,6 +80,9 @@ class RoomState {
     return RoomState(
       RoomBlocState.loaded,
       messagesState: RoomMessagesState.loaded,
+      memberShipStatus: room.roomMember
+          ? RoomMemberShipStatus.joined
+          : RoomMemberShipStatus.left,
       room: room,
       messages: messages,
       isAtEdge: isAtEdge,
@@ -95,6 +101,7 @@ class RoomState {
     RoomBlocState blocState,
     MessageSentState messageState,
     RoomMessagesState messagesState,
+    RoomMemberShipStatus memberShipStatus,
     RoomMessageStreamState roomMessageStreamState,
     Set<String> pendingMessagesIds,
     Room room,
@@ -109,6 +116,7 @@ class RoomState {
       messageState: messageState ?? this.messageState,
       messagesState: messagesState ?? this.messagesState,
       messageStreamState: messageStreamState ?? this.messageStreamState,
+      memberShipStatus: memberShipStatus ?? this.memberShipStatus,
       room: room ?? this.room,
       messages: messages ?? this.messages,
       isAtEdge: isAtEdge ?? this.isAtEdge,

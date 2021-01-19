@@ -201,4 +201,9 @@ class OnlineRoomsDatabase extends RoomsDatabase {
 
     return results.map((e) => Room.fromMap(e)).toList();
   }
+
+  Future<Room> joinRoom(String userId, String roomId) async {
+    final result = await _gitterApi.v1.roomResource.joinRoom(userId, roomId);
+    return Room.fromMap(result.data);
+  }
 }

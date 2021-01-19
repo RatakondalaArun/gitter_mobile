@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gitterapi/models.dart';
@@ -22,6 +23,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _shouldShowFAB = ValueNotifier<bool>(false);
+  final _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
   RoomBloc _roomBloc;
   ScrollController _chatScrollController;
@@ -54,9 +56,21 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _handleState(RoomState state) {
+    if (state.isError) _notifyErrorToUser(state.errorMessage);
     if (state.messageState == MessageSentState.sent) {
       _messageController.text = '';
     }
+  }
+
+  void _notifyErrorToUser(String errorMessage) {
+    _scaffoldKey.currentState
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(errorMessage ?? 'Something went Wrong'),
+          backgroundColor: Colors.red,
+        ),
+      );
   }
 
   @override
@@ -72,84 +86,118 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ChatScreenAppBar(room: widget.room),
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            bottom: 65,
-            left: 0,
-            right: 0,
-            child: ChatView(
-              scrollController: _chatScrollController,
-              messageController: _messageController,
-              messageFocusNode: _messageInputFocus,
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            // TODO: #8 show join button incase user is not a roomMember.
-            child: MessageInput(
-              textController: _messageController,
-              focusNode: _messageInputFocus,
-              onSend: _sendMessage,
-            ),
-          ),
-          Positioned(
-            right: 10,
-            bottom: 100,
-            child: ValueListenableBuilder<bool>(
-              valueListenable: _shouldShowFAB,
-              builder: (_, value, child) {
-                return AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
-                  child: value ? child : Container(),
-                );
-              },
-              child: FloatingActionButton(
-                backgroundColor: Colors.blue.shade300,
-                mini: true,
-                child: Icon(Icons.arrow_downward_outlined),
-                onPressed: _jumpToRecentChat,
+    return ScaffoldMessenger(
+      key: _scaffoldKey,
+      child: Scaffold(
+        appBar: ChatScreenAppBar(room: widget.room),
+        body: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              bottom: 65,
+              left: 0,
+              right: 0,
+              child: ChatView(
+                scrollController: _chatScrollController,
+                messageController: _messageController,
+                messageFocusNode: _messageInputFocus,
               ),
             ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: Container(
-              child: BlocBuilder<RoomBloc, RoomState>(
-                cubit: _roomBloc,
-                builder: (context, state) {
-                  return state.isMessagesLoading
-                      ? LinearProgressIndicator()
-                      : Container();
+            Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                // shows join button incase user is not a roomMember.
+                child: BlocBuilder<RoomBloc, RoomState>(
+                  cubit: _roomBloc,
+                  builder: (context, state) {
+                    if (state.isInitial || state.isLoading) return Container();
+                    if (!(state.room?.roomMember ?? false)) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CupertinoButton(
+                            color: Colors.green.shade400,
+                            child: state.memberShipStatus ==
+                                    RoomMemberShipStatus.joining
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1,
+                                    ),
+                                  )
+                                : Text('Join chat'),
+                            onPressed: state.memberShipStatus ==
+                                    RoomMemberShipStatus.joining
+                                ? null
+                                : _joinRoom,
+                          ),
+                          SizedBox(height: 10)
+                        ],
+                      );
+                    }
+                    return MessageInput(
+                      textController: _messageController,
+                      focusNode: _messageInputFocus,
+                      onSend: _sendMessage,
+                    );
+                  },
+                )),
+            Positioned(
+              right: 10,
+              bottom: 100,
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _shouldShowFAB,
+                builder: (_, value, child) {
+                  return AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    child: value ? child : Container(),
+                  );
                 },
+                child: FloatingActionButton(
+                  backgroundColor: Colors.blue.shade300,
+                  mini: true,
+                  child: Icon(Icons.arrow_downward_outlined),
+                  onPressed: _jumpToRecentChat,
+                ),
               ),
             ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: Container(
-              child: BlocBuilder<RoomBloc, RoomState>(
-                cubit: _roomBloc,
-                builder: (context, state) {
-                  return state.messageState == MessageSentState.sending
-                      ? LinearProgressIndicator(
-                          backgroundColor: Colors.transparent,
-                        )
-                      : Container();
-                },
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: Container(
+                child: BlocBuilder<RoomBloc, RoomState>(
+                  cubit: _roomBloc,
+                  builder: (context, state) {
+                    return state.isMessagesLoading
+                        ? LinearProgressIndicator()
+                        : Container();
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: Container(
+                child: BlocBuilder<RoomBloc, RoomState>(
+                  cubit: _roomBloc,
+                  builder: (context, state) {
+                    return state.messageState == MessageSentState.sending
+                        ? LinearProgressIndicator(
+                            backgroundColor: Colors.transparent,
+                          )
+                        : Container();
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -164,6 +212,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _sendMessage(String message) {
     _roomBloc.add(RoomEventSendMessage(message: message));
+  }
+
+  void _joinRoom() {
+    _roomBloc.add(RoomEventJoin());
   }
 }
 

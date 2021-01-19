@@ -30,6 +30,8 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
       yield* _mapStreamMessageDisconnectedEventToState(event);
     } else if (event is RoomEventSendMessage) {
       yield* _mapSendMessageToState(event);
+    } else if (event is RoomEventJoin) {
+      yield* _mapJoinToState(event);
     }
   }
 
@@ -206,6 +208,32 @@ class RoomBloc extends Bloc<RoomEvent, RoomState> {
         messageState: MessageSentState.sent,
         shouldUpdateChat: true,
         errorMessage: 'Failed to send message',
+      );
+    }
+  }
+
+  Stream<RoomState> _mapJoinToState(RoomEventJoin event) async* {
+    try {
+      // joins user to room.
+      if (!state.room.roomMember) {
+        yield state.update(memberShipStatus: RoomMemberShipStatus.joining);
+
+        final room = await _roomRepo.joinRoom(
+          _currentUser.id,
+          state.room.id,
+        );
+
+        yield state.update(
+          room: room,
+          memberShipStatus: RoomMemberShipStatus.joined,
+        );
+      }
+    } catch (e, st) {
+      print('$e\n$st');
+      yield state.update(
+        blocState: RoomBlocState.error,
+        memberShipStatus: RoomMemberShipStatus.left,
+        errorMessage: 'Unable to join room',
       );
     }
   }
