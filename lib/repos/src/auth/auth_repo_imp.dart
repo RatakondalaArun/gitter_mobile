@@ -7,8 +7,7 @@ class AuthRepoImp extends AuthRepoAbs {
   bool get isInitilized => _dBService.isInitilized;
 
   @override
-  Stream<User> get currentUserStream =>
-      _dBService.currentUser.currentUserChanges;
+  Stream<User> get actorStream => _dBService.currentUser.currentUserChanges;
 
   AuthRepoImp() : _dBService = DatabaseService.instance;
 
@@ -16,7 +15,7 @@ class AuthRepoImp extends AuthRepoAbs {
   Future<void> init() => _dBService.init();
 
   @override
-  Future<User> getCurrentUser() {
+  Future<User> getActor() {
     return _dBService.currentUser.get();
   }
 

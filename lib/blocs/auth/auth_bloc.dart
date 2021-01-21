@@ -13,7 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthRepoAbs _authRepo;
   StreamSubscription _userStateSub;
 
-  AuthBloc(this._authRepo) : super(AuthState.initial()) {
+  AuthBloc(this._authRepo) : super(AuthState.loading()) {
     add(_InitialEvent());
   }
 
@@ -39,8 +39,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _authRepo.init();
       }
       await _userStateSub?.cancel();
-      _userStateSub = _authRepo.currentUserStream
-          .listen((user) => add(_UserStateChanged(user)));
+      _userStateSub =
+          _authRepo.actorStream.listen((user) => add(_UserStateChanged(user)));
       add(AuthEventCheckStatus());
     } catch (e, st) {
       print(e);
@@ -65,7 +65,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // checks if the current user is signed in if yes
     // it yields state to signed in
     try {
-      final user = await _authRepo.getCurrentUser();
+      final user = await _authRepo.getActor();
       if (user == null) {
         yield AuthState.signedOut();
       } else {

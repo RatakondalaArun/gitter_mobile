@@ -52,7 +52,8 @@ class MessageInput extends StatelessWidget {
               ),
               BlocBuilder<RoomBloc, RoomState>(
                 buildWhen: (previous, current) {
-                  return previous.messageState != current.messageState;
+                  return previous.messageDelivaryStaus !=
+                      current.messageDelivaryStaus;
                 },
                 builder: (context, state) {
                   return Container(
@@ -67,7 +68,8 @@ class MessageInput extends StatelessWidget {
                         Icons.send,
                         color: Colors.white,
                       ),
-                      onPressed: state.messageState == MessageSentState.sending
+                      onPressed: state.messageDelivaryStaus ==
+                              MessageDelivaryStatus.sending
                           ? null
                           : _onSend,
                     ),

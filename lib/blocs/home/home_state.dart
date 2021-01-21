@@ -1,6 +1,6 @@
 part of blocs.home;
 
-enum HomeBlocStates { initial, loading, loaded, error }
+enum HomeBlocStates { loading, loaded, error }
 
 class HomeState {
   final HomeBlocStates blocState;
@@ -10,7 +10,6 @@ class HomeState {
   final bool shouldUpdateNavBar;
   final String errorMessage;
 
-  bool get isInitial => blocState == HomeBlocStates.initial;
   bool get isLoading => blocState == HomeBlocStates.loading;
   bool get isLoaded => blocState == HomeBlocStates.loaded;
   bool get isError => blocState == HomeBlocStates.error;
@@ -23,10 +22,6 @@ class HomeState {
     this.shouldUpdateNavBar = false,
     this.errorMessage,
   });
-
-  factory HomeState.initial() {
-    return HomeState(HomeBlocStates.initial);
-  }
 
   factory HomeState.loading() {
     return HomeState(HomeBlocStates.loading);

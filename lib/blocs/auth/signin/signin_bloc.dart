@@ -2,17 +2,16 @@ library blocs.auth.signin;
 
 import 'package:bloc/bloc.dart';
 import 'package:gitter/errors/app_exception.dart';
-import 'package:gitterapi/models.dart';
 import 'package:gitter/repos/repos.dart';
+import 'package:gitterapi/models.dart';
 
 part 'signin_event.dart';
 part 'signin_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final AuthRepoAbs _authRepo;
-  SignInBloc(AuthRepoAbs repo)
-      : _authRepo = repo,
-        super(SignInState.initial()) {
+
+  SignInBloc(this._authRepo) : super(SignInState.initial()) {
     add(_InitilizeEvent());
   }
 
