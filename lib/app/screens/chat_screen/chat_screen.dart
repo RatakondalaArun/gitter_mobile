@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:gitterapi/models.dart';
 
 import '../../../blocs/blocs.dart';
@@ -44,8 +46,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!_chatScrollController.hasClients) return;
     if (_chatScrollController.position.extentAfter < 200.0 &&
         _chatScrollController.position.atEdge) {
-      if (!_roomBloc.state.isMessagesLoading) {
-        _roomBloc.add(RoomEventLoadNext());
+      if (!_roomBloc.state.isPaginating) {
+        _roomBloc.add(RoomEventPaginateMessages());
       }
     }
     if (_chatScrollController.position.extentBefore > 400) {
@@ -57,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleState(RoomState state) {
     if (state.isError) _notifyErrorToUser(state.errorMessage);
-    if (state.messageState == MessageSentState.sent) {
+    if (state.messageDelivaryStaus == MessageDelivaryStatus.sent) {
       _messageController.text = '';
     }
   }
@@ -111,7 +113,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: BlocBuilder<RoomBloc, RoomState>(
                   cubit: _roomBloc,
                   builder: (context, state) {
-                    if (state.isInitial || state.isLoading) return Container();
+                    if (state.isLoading) return Container();
                     if (!(state.room?.roomMember ?? false)) {
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -172,7 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: BlocBuilder<RoomBloc, RoomState>(
                   cubit: _roomBloc,
                   builder: (context, state) {
-                    return state.isMessagesLoading
+                    return state.isPaginating
                         ? LinearProgressIndicator()
                         : Container();
                   },
@@ -187,7 +189,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: BlocBuilder<RoomBloc, RoomState>(
                   cubit: _roomBloc,
                   builder: (context, state) {
-                    return state.messageState == MessageSentState.sending
+                    return state.messageDelivaryStaus ==
+                            MessageDelivaryStatus.sending
                         ? LinearProgressIndicator(
                             backgroundColor: Colors.transparent,
                           )

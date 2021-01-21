@@ -1,6 +1,6 @@
 part of blocs.user;
 
-enum UserBlocState { initial, loading, loaded, error }
+enum UserBlocState { loading, loaded, error }
 
 class UserState {
   final UserBlocState blocState;
@@ -8,7 +8,6 @@ class UserState {
   final UserProfile userProfile;
   final String errorMessage;
 
-  bool get isInitial => blocState == UserBlocState.initial;
   bool get isLoading => blocState == UserBlocState.loading;
   bool get isLoaded => blocState == UserBlocState.loaded;
   bool get isError => blocState == UserBlocState.error;
@@ -19,10 +18,6 @@ class UserState {
     this.userProfile,
     this.errorMessage,
   });
-
-  factory UserState.initial() {
-    return UserState(UserBlocState.initial);
-  }
 
   factory UserState.loading() {
     return UserState(UserBlocState.loading);

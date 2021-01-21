@@ -1,7 +1,7 @@
 part of blocs.auth;
 
 /// Represents [AuthBloc] states
-enum AuthBlocStates { initial, loading, signedIn, signedOut, error }
+enum AuthBlocStates { loading, signedIn, signedOut, error }
 
 /// State of the [AuthBloc]
 class AuthState {
@@ -13,8 +13,12 @@ class AuthState {
   /// If there is any error this will contains the message
   final String errorMessage;
 
+  bool get isLoading => blocState == AuthBlocStates.loading;
+
   /// Helper method to check if user is signedIn
   bool get isSignedIn => blocState == AuthBlocStates.signedIn;
+
+  bool get isSignedOut => blocState == AuthBlocStates.signedOut;
 
   /// Helper method to check if error occured
   bool get isError => blocState == AuthBlocStates.error;
@@ -25,11 +29,6 @@ class AuthState {
     this.user,
     this.errorMessage,
   });
-
-  // Represents initial state of this bloc
-  factory AuthState.initial() {
-    return AuthState(AuthBlocStates.initial);
-  }
 
   // Represents loading state of the bloc
   factory AuthState.loading() {

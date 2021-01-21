@@ -10,7 +10,7 @@ part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchRepoAbs _searchRepo;
-  SearchBloc(this._searchRepo) : super(SearchState.initial()) {
+  SearchBloc(this._searchRepo) : super(SearchState.loading()) {
     add(_InitialEvent());
   }
 

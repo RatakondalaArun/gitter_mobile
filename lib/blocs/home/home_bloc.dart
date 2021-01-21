@@ -13,19 +13,20 @@ part 'home_event.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeRepoAbs _homeRepo;
   AuthRepoAbs _authRepo;
+  // fetches rooms perodically
+  StreamSubscription _perodicChatfetchSub;
 
-  StreamSubscription _perodicChatfetch;
-
+  /// Creates a instance of [HomeBloc].
   HomeBloc(
     this._authRepo,
     this._homeRepo,
-  ) : super(HomeState.initial()) {
+  ) : super(HomeState.loading()) {
     add(_InitialEvent());
   }
 
   @override
   Future<void> close() {
-    _perodicChatfetch?.cancel();
+    _perodicChatfetchSub?.cancel();
     return super.close();
   }
 
@@ -42,11 +43,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
+  // Initilizes Bloc with data.
   Stream<HomeState> _mapInitialEvent(_InitialEvent event) async* {
     try {
-      yield HomeState.initial();
-      final user = await _authRepo.getCurrentUser();
-      final rooms = await _homeRepo.getCurrentUserRooms(user.id);
+      yield HomeState.loading();
+      final user = await _authRepo.getActor();
+      final rooms = await _homeRepo.getActorRooms(user.id);
       final sortedRooms = await compute<List<Room>, _SortedRooms>(
         _optmizedRoomsSort,
         rooms,
@@ -59,12 +61,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         isDMUnread: sortedRooms.isChatsUnread,
       );
 
-      await _perodicChatfetch?.cancel();
+      await _perodicChatfetchSub?.cancel();
 
       // Refreshs rooms data for every two minutes
       // and triggers a [_PerodicRefreshEvent]. Which then
       // fetches data and updates state.
-      _perodicChatfetch = Stream.periodic(
+      _perodicChatfetchSub = Stream.periodic(
         Duration(minutes: 2),
         (c) => c,
       ).listen(
@@ -82,8 +84,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Stream<HomeState> _mapRefreshToState() async* {
     try {
       yield HomeState.loading();
-      final user = await _authRepo.getCurrentUser();
-      final rooms = await _homeRepo.getCurrentUserRooms(user.id);
+      final user = await _authRepo.getActor();
+      final rooms = await _homeRepo.getActorRooms(user.id);
       final sortedRooms = await compute<List<Room>, _SortedRooms>(
         _optmizedRoomsSort,
         rooms,
@@ -103,8 +105,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Stream<HomeState> _mapPerodicRefreshToState() async* {
     try {
       print('Perodic Fetch triggered');
-      final user = await _authRepo.getCurrentUser();
-      final rooms = await _homeRepo.getCurrentUserRooms(user.id);
+      final user = await _authRepo.getActor();
+      final rooms = await _homeRepo.getActorRooms(user.id);
       final sortedRooms = await compute<List<Room>, _SortedRooms>(
         _optmizedRoomsSort,
         rooms,

@@ -6,5 +6,6 @@ import 'package:gitterapi/models.dart';
 part 'user_repo_imp.dart';
 
 abstract class UserRepoAbs {
+  /// Returns a user profile.
   Future<UserProfile> getUserProfile(String username);
 }

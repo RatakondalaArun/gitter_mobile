@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleState(HomeState state) async {
-    if (state.isInitial) {
+    if (state.isLoading) {
       if (_refreshKey.currentState.mounted) {
         await _refreshKey.currentState.show();
       }
@@ -161,7 +161,7 @@ class _RoomsPage extends StatelessWidget {
         return !n.shouldUpdateNavBar;
       },
       builder: (_, state) {
-        if (state.isInitial) {
+        if (state.isLoading) {
           return Container(
             alignment: Alignment.center,
             child: GitterLoadingIndicator(),
@@ -191,10 +191,10 @@ class _DirectMessages extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (_, state) {
-        if (state.isInitial) {
+        if (state.isLoading) {
           return Container(
             alignment: Alignment.center,
-            child: Text('Loading'),
+            child: GitterLoadingIndicator(),
           );
         }
         return ListView.builder(

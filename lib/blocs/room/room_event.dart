@@ -8,19 +8,19 @@ abstract class RoomEvent {
   /// Events fired in the room like new message.
   final StreamEvent streamEvent;
 
-  /// Error message for [streamEvent].
+  /// Message sent by user to [room].
   final String message;
 
   /// Error object of [streamEvent].
-  final Object error;
+  final Object _error;
 
   /// Creates a instance of [Room].
   RoomEvent({
     this.room,
     this.streamEvent,
     this.message,
-    this.error,
-  });
+    Object error,
+  }) : this._error = error;
 }
 
 /// This event Initilizes the bloc with [Room].
@@ -28,8 +28,8 @@ class RoomEventInitilize extends RoomEvent {
   RoomEventInitilize(Room room) : super(room: room);
 }
 
-/// This event loads next paginated messages.
-class RoomEventLoadNext extends RoomEvent {}
+/// This event loads next messages form server.
+class RoomEventPaginateMessages extends RoomEvent {}
 
 /// This event notifies [RoomBloc] about new chat messages.
 class _StreamMessageEvent extends RoomEvent {

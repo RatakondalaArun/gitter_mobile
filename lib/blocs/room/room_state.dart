@@ -1,55 +1,119 @@
 part of blocs.room;
 
-enum RoomBlocState { initial, loading, loaded, error }
-enum RoomMessagesState { loading, loaded }
-enum RoomMessageStreamState { connecting, connected, disconnected }
-enum MessageSentState { sending, sent, failed }
-enum RoomMemberShipStatus { left, joining, joined }
+/// [RoomBloc] can only be in this states.
+enum RoomBlocState {
+  loading,
+  loaded,
+  error,
+}
+
+/// Pagination
+enum PaginationState {
+  /// Data is loading.
+  loading,
+
+  /// Data loaded.
+  loaded,
+}
+
+/// Specifies stream status.
+enum RoomMessageStreamStatus {
+  /// Stream is making a connection with server.
+  connecting,
+
+  /// Stream is successfully connected to server.
+  connected,
+
+  /// Stream is disconnected from server.
+  disconnected,
+}
+
+/// Indicates Message Delivary status.
+enum MessageDelivaryStatus {
+  /// Message is sending to server.
+  sending,
+
+  /// Messages is succuessfully sent to server.
+  sent,
+
+  /// Message failed to sent to server.
+  failed,
+}
+
+/// Specifies if a user is belonged to room.
+enum RoomMemberShipStatus {
+  /// Indicates user is not a room member.
+  left,
+
+  /// User is joining a room.
+  joining,
+
+  /// User joined the room.
+  joined,
+}
 
 class RoomState {
+  /// Status of the [RoomBloc]
   final RoomBlocState blocState;
-  final RoomMessagesState messagesState;
-  final RoomMessageStreamState messageStreamState;
+
+  /// Returns pagination status.
+  final PaginationState paginationStatus;
+
+  /// Returns the status messages stream from server.
+  final RoomMessageStreamStatus messageStreamState;
+
+  /// Retursn if a user is member or joining or left a room.
   final RoomMemberShipStatus memberShipStatus;
 
   /// Contains ids of the pending messages.
   final Set<String> pendingMessagesIds;
 
   /// tells if a message is being sent to server.
-  final MessageSentState messageState;
+  final MessageDelivaryStatus messageDelivaryStaus;
+
+  /// Instance of [Room] this bloc is initilized with.
   final Room room;
+
+  /// Returns true if there are no more
+  /// messages to be loaded from server.
   final bool isAtEdge;
+
+  /// Returns a list of chat messages.
   final List<Message> messages;
+
+  /// This indicated if chat needs to be updated.
   final bool shouldUpdateChat;
+
+  /// This contains user specific error messages.
   final String errorMessage;
 
-  bool get isInitial => blocState == RoomBlocState.initial;
   bool get isLoading => blocState == RoomBlocState.loading;
   bool get isLoaded => blocState == RoomBlocState.loaded;
   bool get isError => blocState == RoomBlocState.error;
 
-  bool get isMessagesLoading => messagesState == RoomMessagesState.loading;
-  bool get isMessagesLoaded => messagesState == RoomMessagesState.loaded;
+  bool get isPaginating => paginationStatus == PaginationState.loading;
+  bool get isPaginated => paginationStatus == PaginationState.loaded;
 
   bool get isMessageStreamLoading {
-    return messageStreamState == RoomMessageStreamState.connecting;
+    return messageStreamState == RoomMessageStreamStatus.connecting;
   }
 
   bool get isMessageStreamLoaded {
-    return messageStreamState == RoomMessageStreamState.connecting;
+    return messageStreamState == RoomMessageStreamStatus.connecting;
   }
 
   bool get isMessageStreamDisconnected {
-    return messageStreamState == RoomMessageStreamState.disconnected;
+    return messageStreamState == RoomMessageStreamStatus.disconnected;
   }
 
+  /// Creates a instance of [RoomState].
   RoomState(
     this.blocState, {
     this.shouldUpdateChat = false,
     Set<String> pendingMessagesIds,
-    this.messageState = MessageSentState.sent,
-    this.messagesState = RoomMessagesState.loading,
-    this.messageStreamState = RoomMessageStreamState.connecting,
+    this.messageDelivaryStaus = MessageDelivaryStatus.sent,
+    this.paginationStatus = PaginationState.loading,
+    this.messageStreamState = RoomMessageStreamStatus.connecting,
     this.memberShipStatus = RoomMemberShipStatus.left,
     this.room,
     this.isAtEdge = false,
@@ -58,13 +122,8 @@ class RoomState {
   })  : this.pendingMessagesIds = pendingMessagesIds ?? <String>{},
         this.messages = messages ?? <Message>[];
 
-  factory RoomState.initial() {
-    return RoomState(
-      RoomBlocState.initial,
-      messages: [],
-    );
-  }
-
+  /// Creates a instance of [RoomState]
+  /// with all fields set to loading.
   factory RoomState.loading() {
     return RoomState(
       RoomBlocState.loading,
@@ -72,6 +131,8 @@ class RoomState {
     );
   }
 
+  /// Creates a instance of [RoomState].
+  /// with loaded data.
   factory RoomState.loaded({
     @required Room room,
     @required List<Message> messages,
@@ -79,7 +140,7 @@ class RoomState {
   }) {
     return RoomState(
       RoomBlocState.loaded,
-      messagesState: RoomMessagesState.loaded,
+      paginationStatus: PaginationState.loaded,
       memberShipStatus: room.roomMember
           ? RoomMemberShipStatus.joined
           : RoomMemberShipStatus.left,
@@ -90,6 +151,8 @@ class RoomState {
     );
   }
 
+  /// Creates a instance of [RoomState]
+  /// indicated that bloc encountered a error.
   factory RoomState.error(String errorMessage) {
     return RoomState(
       RoomBlocState.error,
@@ -97,12 +160,14 @@ class RoomState {
     );
   }
 
+  /// Returns a instance of [RoomState]
+  /// while only updating necessary fields.
   RoomState update({
     RoomBlocState blocState,
-    MessageSentState messageState,
-    RoomMessagesState messagesState,
+    MessageDelivaryStatus messageDelivaryStatus,
+    PaginationState paginationStatus,
     RoomMemberShipStatus memberShipStatus,
-    RoomMessageStreamState roomMessageStreamState,
+    RoomMessageStreamStatus messageStreamState,
     Set<String> pendingMessagesIds,
     Room room,
     List<Message> messages,
@@ -113,8 +178,8 @@ class RoomState {
     return RoomState(
       blocState ?? this.blocState,
       pendingMessagesIds: pendingMessagesIds ?? this.pendingMessagesIds,
-      messageState: messageState ?? this.messageState,
-      messagesState: messagesState ?? this.messagesState,
+      messageDelivaryStaus: messageDelivaryStatus ?? this.messageDelivaryStaus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
       messageStreamState: messageStreamState ?? this.messageStreamState,
       memberShipStatus: memberShipStatus ?? this.memberShipStatus,
       room: room ?? this.room,

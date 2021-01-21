@@ -19,13 +19,13 @@ abstract class AuthRepoAbs {
   bool get isInitilized;
 
   /// Returns changes from current user.
-  Stream<User> get currentUserStream;
+  Stream<User> get actorStream;
 
   /// Initilizes the repo
   Future<void> init();
 
   /// Returns currently signed in user
-  Future<User> getCurrentUser();
+  Future<User> getActor();
 
   /// Signs in user from the app
   Future<User> signIn();

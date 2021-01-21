@@ -2,9 +2,6 @@ part of blocs.search;
 
 /// Search Bloc can be in any of this state only.
 enum SearchBlocState {
-  /// First state before anything happend.
-  initial,
-
   /// Bloc is in loading state.
   loading,
 
@@ -46,7 +43,6 @@ class SearchState {
   /// Contains error message if any error or exception occured.
   final String errorMessage;
 
-  bool get isInitial => blocState == SearchBlocState.initial;
   bool get isLoading => blocState == SearchBlocState.loading;
   bool get isLoaded => blocState == SearchBlocState.loaded;
   bool get isError => blocState == SearchBlocState.error;
@@ -65,11 +61,6 @@ class SearchState {
   })  : this.rooms = rooms ?? <Room>[],
         this.users = users ?? <User>[],
         this.searchHistory = searchHistory ?? <String>[];
-
-  /// Initial State.
-  factory SearchState.initial() {
-    return SearchState(SearchBlocState.initial);
-  }
 
   /// Loading state.
   factory SearchState.loading() {

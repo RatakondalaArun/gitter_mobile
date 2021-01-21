@@ -6,7 +6,7 @@ class HomeRepoImp extends HomeRepoAbs {
   HomeRepoImp() : _db = DatabaseService.instance;
 
   @override
-  Future<List<Room>> getCurrentUserRooms(String userId) async {
+  Future<List<Room>> getActorRooms(String userId) async {
     try {
       final rooms = await _db.currentUser.getRooms(userId) ?? [];
       if (rooms.isNotEmpty) {
